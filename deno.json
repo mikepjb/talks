@@ -7,7 +7,8 @@
 		},
 		"dev:client": "deno bundle --platform browser --watch src/client.tsx -o dist/client.js",
 		"dev:css": "esbuild --watch src/styles.css --bundle --platform=browser --outfile=dist/styles.css --loader:.woff=file --loader:.woff2=file --loader:.ttf=file --loader:.eot=file",
-		"host": "deno run --allow-net --allow-read jsr:@std/http/file-server --port 8080",
+		"dev:index": "cp ./index.html ./dist/index.html",
+		"host": "deno run --allow-net --allow-read jsr:@std/http/file-server --port 8080 ./dist",
 		"dev": {
 			"dependencies": ["dev:client", "dev:css", "host"]
 		}
