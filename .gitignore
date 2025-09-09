@@ -1,0 +1,5 @@
+node_modules/
+dist/
+
+# ignoring a local export of one of my talks
+return.pdf
