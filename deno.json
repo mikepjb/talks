@@ -1,6 +1,6 @@
 {
 	"tasks": {
-		"build:client": "deno bundle --platform browser src/client.tsx dist/client.js",
+		"build:client": "deno bundle --platform browser src/client.tsx -o dist/client.js",
 		"build:css": "esbuild src/styles.css --bundle --platform=browser --outfile=dist/styles.css --loader:.woff=file --loader:.woff2=file --loader:.ttf=file --loader:.eot=file",
 		"build": {
 			"dependencies": ["build:client", "build:css"]
