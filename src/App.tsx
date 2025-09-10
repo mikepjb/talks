@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'npm:react'
 import Reveal from 'npm:reveal.js'
+import RevealNotes from 'npm:reveal.js/plugin/notes/notes.js'
+import { Talk } from './Talk.tsx'
 
 function App() {
-	console.log('hello.')
+	console.log('Loading presentation application')
 	const deckDivRef = useRef<HTMLDivElement>(null) // reference to deck container div
 	const deckRef = useRef<Reveal.Api | null>(null) // reference to deck reveal instance
 
@@ -15,8 +17,8 @@ function App() {
 			// other config options
 		})
 
-		deckRef.current.initialize().then(() => {
-			// good place for event handlers and plugin setups
+		deckRef.current.initialize({
+			plugins: [RevealNotes],
 		})
 
 		return () => {
@@ -25,7 +27,7 @@ function App() {
 					deckRef.current.destroy()
 					deckRef.current = null
 				}
-			} catch (e) {
+			} catch (_) {
 				console.warn('Reveal.js destroy call failed.')
 			}
 		}
@@ -33,10 +35,7 @@ function App() {
 
 	return (
 		<div className='reveal' ref={deckDivRef}>
-			<div className='slides'>
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
+			<Talk />
 		</div>
 	)
 }

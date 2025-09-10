@@ -1,7 +1,103 @@
 @import 'reveal.js/dist/reveal.css';
 @import 'reveal.js/dist/theme/black.css';
+@import '@fontsource/manrope/400.css';
+@import '@fontsource/manrope/600.css';
+@import '@fontsource/manrope/800.css';
+@import '@fontsource/recursive';
 
 #root {
 	height: 100vh;
 	width: 100vw;
+}
+
+.reveal {
+	font-family: 'Manrope', sans-serif;
+
+	h1, h2, h3, h4, h5, h6 {
+		text-transform: none;
+	}
+
+	h2 {
+		font-weight: 800;
+	}
+
+	ul {
+		font-size: 2rem;
+	}
+
+	code {
+		font-family: 'Recursive', monospace;
+	}
+
+	img {
+		min-height: 40svh;
+		max-height: 50svh;
+	}
+}
+
+/* Warning slide styles */
+.warning-slide {
+	display: flex !important;
+	flex-direction: column;
+	justify-content: center;
+	padding: 2rem;
+}
+
+.warning-title {
+	font-size: 4rem !important;
+	font-weight: bold;
+	text-transform: uppercase;
+	margin-bottom: 2rem !important;
+	animation: pulse 2s infinite;
+	text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+}
+
+.warning-content {
+	background: rgba(0, 0, 0, 0.3);
+	border: 4px solid #ffd700;
+	border-radius: 10px;
+	padding: 2rem;
+	max-width: 80%;
+	margin: 0 auto;
+	font-size: 1.2rem;
+	line-height: 1.8;
+}
+
+.warning-content p {
+	margin: 1rem 0;
+	text-align: center;
+}
+
+.warning-footer {
+	font-style: italic;
+	font-size: 1.4rem !important;
+	color: #ffd700;
+	margin-top: 2rem !important;
+}
+
+@keyframes pulse {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.8;
+	}
+}
+
+.italic {
+	font-style: italic;
+}
+
+.footer {
+	font-size: 1.5rem;
+	color: #aeaeae;
+}
+
+.with-logo {
+	display: flex;
+	align-items: svg;
+	svg {
+		margin-top: 0.35rem;
+		margin-left: 0.5rem;
+	}
 }

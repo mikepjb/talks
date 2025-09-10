@@ -29,8 +29,6 @@ jobs:
           deno-version: v2.x
       - name: Build assets
         run: deno task build
-      - name: Copy index.html to dist
-        run: cp index.html dist/
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact

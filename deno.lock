@@ -3,6 +3,8 @@
   "specifiers": {
     "jsr:@std/assert@1": "1.0.14",
     "jsr:@std/internal@^1.0.10": "1.0.10",
+    "npm:@fontsource/manrope@^5.2.7": "5.2.7",
+    "npm:@fontsource/recursive@^5.2.7": "5.2.7",
     "npm:@types/react@^19.1.12": "19.1.12",
     "npm:esbuild@0.25.9": "0.25.9",
     "npm:esbuild@~0.25.9": "0.25.9",
@@ -154,6 +156,12 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
+    "@fontsource/manrope@5.2.7": {
+      "integrity": "sha512-vTSStXpF7mhA4k+b6u/wlFncS+LIXRRs7fFCvsYk23Xd1pc2IN33Mv/HLVwkWKuy1mFgz9m0MNGsOhihThQITw=="
+    },
+    "@fontsource/recursive@5.2.7": {
+      "integrity": "sha512-RkiJh/qKBKwvlqVLRbfrpf+nxrKS0dc5A/Bocr+5itW1bIUvCALulS5B+pFt0qHiysPIUx9EIDlNTvq3ttgWHw=="
+    },
     "@types/react@19.1.12": {
       "integrity": "sha512-cMoR+FoAf/Jyq6+Df2/Z41jISvGZZ2eTlnsaJRptmZ76Caldwy1odD4xTr/gNV9VLj0AWgg/nmkevIyUfIIq5w==",
       "dependencies": [
@@ -216,6 +224,8 @@
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@1",
+      "npm:@fontsource/manrope@^5.2.7",
+      "npm:@fontsource/recursive@^5.2.7",
       "npm:@types/react@^19.1.12",
       "npm:esbuild@~0.25.9",
       "npm:react@^19.1.1",
