@@ -38,6 +38,13 @@ export const Talk = () => {
 						...anyway, let's get started!
 					</p>
 				</div>
+
+				<aside className='notes'>
+					<div>
+						This talk has opinions, hopefully you'll them to be
+						useful opinions.
+					</div>
+				</aside>
 			</section>
 
 			<section>
@@ -278,6 +285,43 @@ func SetupRoutes() {
 					<div>
 						The people importing your packages shouldn't have to
 						understand your internal organisation choices.
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>Can you apply the same principle?</h2>
+
+				<div>
+					You can't write code in people's heads,<br />
+					but you can match the mental models already there.
+				</div>
+
+				<div style={{ marginTop: '2em' }}>
+					<code style={{ fontSize: '1.2em' }}>
+						booking.Create() → payment.Charge()
+					</code>
+				</div>
+
+				<aside className='notes'>
+					<div>
+						This is the deeper connection to Go's interface
+						philosophy.
+					</div>
+					<div>
+						Just like interfaces belong in the consuming package,
+						packages should match how consumers think about the
+						domain.
+					</div>
+					<div>
+						When someone says "to book a holiday, check
+						availability, create a reservation, then charge payment"
+						- that's exactly how your code should read.
+					</div>
+					<div>
+						You're not forcing people to learn your technical
+						architecture, you're reflecting the business logic they
+						already understand.
 					</div>
 				</aside>
 			</section>
@@ -764,6 +808,18 @@ func BookHoliday(w http.ResponseWriter, r *http.Request) {
 					<div>
 						Your import list should be living documentation of your
 						system architecture.
+					</div>
+					<div>
+						Just like we write interfaces in the consuming package,
+						we should structure packages to match how people already
+						think about the system - the business logic they have in
+						their heads.
+					</div>
+					<div>
+						When someone says "to create a booking, you need a valid
+						payment" - that's exactly how your packages should be
+						organized. The code should read like the business
+						requirements.
 					</div>
 					<div>
 						If it doesn't tell a clear story, it's time to refactor.
