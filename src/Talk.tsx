@@ -1,29 +1,3 @@
-// TODO code examples should use aliasing to demonstrate how much coding
-// gynastics are required i.e 2 model imports should have usermodel,
-// bookingmodel as their local alias name
-// TODO code in generally should be slightly smaller to accomodate and titles
-// should have slightly less vertical margin/padding to give more room to
-// slides in general
-// TODO standard lib needs actual code usage to illustrate
-// TODO net packages need usage (stdlib)
-// TODO database package - you don't need /driver package (it's used internal
-// to link behind the scenes, good example to mention though, just maybe
-// comment this part out and say it's not needed by the consumer, they've
-// hidden it away)
-// TODO same for encoding example, I guess here we want to illustrate that none
-// of these (check this) have encoding/top level implementation and can operate
-// idependently but are related by their over-arching purpose.
-// TODO encoding v2 needs code example not just imports - would be good to show
-// an advantage to using v2 > v1 TBH, doesn't have to be about package
-// structure specifically this slide.
-// TODO actionable advice should be left/right columns and DO/DON'T don't need
-// to be there, the emoji communicate purpose fine
-// TODO before/after slide needs MORE code and the before needs to not be such
-// a strawman LOL
-// TODO challenge slide has too much content to be seen on the slide
-// TODO Thank you! slide can have tada emoji on either side of the title + the
-// url for the talk is https://mikepjb.github.io/talks
-
 export const Talk = () => {
 	return (
 		<div className='slides'>
@@ -213,18 +187,18 @@ import (
 
 				<pre><code data-trim data-noescape className='language-golang'>{`
 import (
-    "holiday-service/user/model"
-    "holiday-service/user/handler"
-    "holiday-service/booking/model"
-    "holiday-service/booking/handler"
-    "holiday-service/payment/model"
-    "holiday-service/payment/handler"
+    userModel "holiday-service/user/model"
+    userHandler "holiday-service/user/handler"
+    bookingModel "holiday-service/booking/model"
+    bookingHandler "holiday-service/booking/handler"
+    paymentModel "holiday-service/payment/model"
+    paymentHandler "holiday-service/payment/handler"
 )
 
 func SetupRoutes() {
-    user := model.User{}      // Which model?
-    booking := model.Booking{} // Conflict!
-    payment := model.Payment{} // Alias required!
+    user := userModel.User{}         // Verbose aliasing required
+    booking := bookingModel.Booking{} // Coding gymnastics!
+    payment := paymentModel.Payment{} // Just to import cleanly
 }
 				`}</code></pre>
 
@@ -251,18 +225,18 @@ func SetupRoutes() {
 
 				<pre><code data-trim data-noescape className='language-golang'>{`
 import (
-    "holiday-service/model/user"
-    "holiday-service/handler/user"
-    "holiday-service/model/booking"
-    "holiday-service/handler/booking"
-    "holiday-service/model/payment"
-    "holiday-service/handler/payment"
+    userModel "holiday-service/model/user"
+    userHandler "holiday-service/handler/user"
+    bookingModel "holiday-service/model/booking"
+    bookingHandler "holiday-service/handler/booking"
+    paymentModel "holiday-service/model/payment"
+    paymentHandler "holiday-service/handler/payment"
 )
 
 func SetupRoutes() {
-    account := user.Account{}     // Still conflicts!
-    booking := booking.Booking{}  // Package name clash
-    payment := payment.Payment{}  // Stuttering
+    account := userModel.Account{}        // Still verbose aliasing!
+    booking := bookingModel.Booking{}     // More gymnastics
+    payment := paymentModel.Payment{}     // Same problems, different order
 }
 				`}</code></pre>
 
@@ -483,9 +457,13 @@ import (
     "net/http/pprof"    // Profiling tools via HTTP
 )
 
+// Usage flows naturally:
+listener, err := net.Listen("tcp", ":8080")  // Base networking
+server := &http.Server{Handler: mux}        // HTTP layer
+_ = pprof.Handler("goroutine")               // Profiling via HTTP
+
 // Each layer builds on the last
 // The story gets more specific as you go deeper
-// But each package name still makes sense!
 				`}</code></pre>
 
 				<aside className='notes'>
@@ -511,15 +489,17 @@ import (
 				<pre><code data-trim data-noescape className='language-golang'>{`
 import (
     "database/sql"        // Generic database interface
-    "database/sql/driver" // Driver implementation contract
+    // "database/sql/driver" // Hidden! Driver implementation contract
+                             // (consumers don't need this)
 
-    // Then you'd import a specific driver:
-    _ "github.com/lib/pq" // PostgreSQL driver
+    // Just import a specific driver:
+    _ "github.com/lib/pq" // PostgreSQL driver registers itself
 )
 
 // Clear separation of concerns:
-db, err := sql.Open("postgres", connStr)
-// Consumer uses sql.DB, never touches driver directly
+db, err := sql.Open("postgres", connStr)  // Use sql package
+rows, err := db.Query("SELECT * FROM users")  // Generic interface
+// Consumer never touches driver directly - it's abstracted away!
 				`}</code></pre>
 
 				<aside className='notes'>
@@ -548,23 +528,31 @@ import (
     "encoding/hex"      // Hex encoding
 )
 
-// Parallel capabilities under one parent
-// Each package is independent
-// Clear what each one does: json.Marshal(), xml.Unmarshal()
+// Parallel capabilities under one parent:
+data, _ := json.Marshal(user)              // Encode to JSON
+_ = xml.Unmarshal(xmlData, &response)      // Decode from XML
+encoded := base64.StdEncoding.EncodeToString([]byte("hello"))
+decoded, _ := hex.DecodeString("48656c6c6f") // Decode hex
+
+// Each package is independent, clear what each one does
 				`}</code></pre>
 
 				<aside className='notes'>
 					<div>
-						The encoding package groups related but independent
-						functionality.
+						This might seem to contradict "flat packages are
+						friendly" but notice the key difference: these are truly
+						independent packages that happen to share a common
+						abstraction.
 					</div>
 					<div>
-						Each sub-package is self-contained - you never import
-						encoding itself, just the specific format you need.
+						You never import "encoding" itself - just the specific
+						format you need. Each sub-package is completely
+						self-contained with no dependencies between them.
 					</div>
 					<div>
-						This is good sub-packaging - grouping related packages
-						that share a common abstraction.
+						This is the good kind of sub-packaging: organizing
+						related but independent capabilities under a namespace,
+						not splitting a single domain across technical layers.
 					</div>
 				</aside>
 			</section>
@@ -579,13 +567,17 @@ import (
     "encoding/json/jsontext"  // New syntax layer
 )
 
-// The Go team faced a challenge:
-// How to improve JSON after 10+ years?
+// v1 still works:
+data, _ := json.Marshal(user)
 
-// Solution: Thoughtful package structure
-// - Keep existing code working
-// - Add new capabilities in new packages
-// - Use v2 internally to power v1!
+// v2 adds streaming and better control:
+enc := jsontext.NewEncoder(os.Stdout)
+enc.WriteToken(jsontext.ObjectStart)
+enc.WriteToken(jsontext.String("name"))
+enc.WriteToken(jsontext.String(user.Name))
+enc.WriteToken(jsontext.ObjectEnd)
+
+// Evolution without breaking existing code!
 				`}</code></pre>
 
 				<aside className='notes'>
@@ -607,31 +599,43 @@ import (
 			<section>
 				<h2>Actionable advice</h2>
 
-				<div style={{ fontSize: '1.2em' }}>
-					<h3>✅ DO</h3>
-					<ul>
-						<li>
-							<strong>Flat packages are friendly packages</strong>
-						</li>
-						<li>Use _test packages to feel your own API</li>
-						<li>
-							Write your imports first - what story do they tell?
-						</li>
-						<li>
-							Name packages by what they provide, not what they
-							contain
-						</li>
-					</ul>
+				<div
+					style={{ display: 'flex', gap: '3rem', fontSize: '1.1em' }}
+				>
+					<div style={{ flex: 1 }}>
+						<h3>✅</h3>
+						<ul>
+							<li>
+								<strong>
+									Flat packages are friendly packages
+								</strong>
+							</li>
+							<li>Use _test packages to feel your own API</li>
+							<li>
+								Write your imports first - what story do they
+								tell?
+							</li>
+							<li>
+								Name packages by what they provide, not what
+								they contain
+							</li>
+						</ul>
+					</div>
 
-					<h3>❌ DON'T</h3>
-					<ul>
-						<li>Sub-package without a really good reason</li>
-						<li>Create model/, handler/, service/ packages</li>
-						<li>
-							Name packages that conflict (all become "model")
-						</li>
-						<li>Forget: packages are interfaces too</li>
-					</ul>
+					<div style={{ flex: 1 }}>
+						<h3>❌</h3>
+						<ul>
+							<li>
+								Sub-package unless grouping truly independent
+								packages (like encoding/*)
+							</li>
+							<li>Create model/, handler/, service/ packages</li>
+							<li>
+								Name packages that conflict (all become "model")
+							</li>
+							<li>Forget: packages are interfaces too</li>
+						</ul>
+					</div>
 				</div>
 
 				<aside className='notes'>
@@ -646,35 +650,45 @@ import (
 			</section>
 
 			<section>
-				<h2>Before & After: Real transformation</h2>
+				<h2>Putting this together</h2>
 
 				<div style={{ display: 'flex', gap: '20px' }}>
 					<div style={{ flex: 1 }}>
 						<h4>Before</h4>
-						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
+						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.75em' }}>{`
 import (
-    "holiday-service/model"
     "holiday-service/handler"
+    "holiday-service/model"
     "holiday-service/service"
+    "holiday-service/repository"
+    "holiday-service/validator"
 )
 
 func BookHoliday(w http.ResponseWriter, r *http.Request) {
-    // Which model? User? Booking? Payment?
-    m := model.Booking{}
+    // Multiple imports needed for simple task
+    userRepo := repository.NewUser()
+    bookingRepo := repository.NewBooking()
+    paymentSvc := service.NewPayment()
 
-    // Generic service tells us nothing
-    svc := service.New()
+    validator := validator.New()
 
-    // Handler for what?
-    h := handler.Process(m, svc)
+    // Code scattered across technical layers
+    user, _ := userRepo.FindByID(userID)
+    booking := model.Booking{UserID: user.ID, ...}
 
-    // What story does this tell?
+    if err := validator.ValidateBooking(booking); err != nil {
+        handler.Error(w, err)
+        return
+    }
+
+    bookingRepo.Save(booking)
+    paymentSvc.Process(booking.Total)
 }
 						`}</code></pre>
 					</div>
 					<div style={{ flex: 1 }}>
 						<h4>After</h4>
-						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
+						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.75em' }}>{`
 import (
     "holiday-service/user"
     "holiday-service/booking"
@@ -682,16 +696,29 @@ import (
 )
 
 func BookHoliday(w http.ResponseWriter, r *http.Request) {
-    // Clear what each package does
-    u := user.Current(r.Context())
+    // Business domain is immediately clear
+    currentUser, err := user.FromContext(r.Context())
+    if err != nil {
+        http.Error(w, "unauthorized", 401)
+        return
+    }
 
-    // Natural, readable flow
-    b := booking.Reserve(hotelID, dates)
+    // Natural workflow follows business process
+    reservation, err := booking.Create(currentUser.ID, hotelID, dates)
+    if err != nil {
+        http.Error(w, err.Error(), 400)
+        return
+    }
 
-    // Domain is obvious
-    payment.Charge(u, b.Total())
+    // Payment naturally follows booking
+    err = payment.Charge(currentUser, reservation.Total())
+    if err != nil {
+        booking.Cancel(reservation.ID)
+        http.Error(w, "payment failed", 400)
+        return
+    }
 
-    // The code tells the business story!
+    json.NewEncoder(w).Encode(reservation)
 }
 						`}</code></pre>
 					</div>
@@ -716,20 +743,16 @@ func BookHoliday(w http.ResponseWriter, r *http.Request) {
 			<section>
 				<h2>The Challenge</h2>
 
-				<div style={{ fontSize: '1.3em', marginTop: '2em' }}>
-					<p>
-						<strong>
-							Next time you create a package, ask yourself:
-						</strong>
-					</p>
-
-					<blockquote style={{ fontSize: '1.2em', marginTop: '1em' }}>
+				<div style={{ fontSize: '1.5em', marginTop: '2em' }}>
+					<blockquote
+						style={{ fontSize: '1.3em', fontWeight: 'bold' }}
+					>
 						"If someone only saw my import list,<br />
 						would they understand what my application does?"
 					</blockquote>
 
 					<p style={{ marginTop: '2em', fontWeight: 'bold' }}>
-						Because packages belong to the people who use them.
+						Packages belong to the people who use them.
 					</p>
 				</div>
 
@@ -749,7 +772,7 @@ func BookHoliday(w http.ResponseWriter, r *http.Request) {
 			</section>
 
 			<section>
-				<h2>Thank you!</h2>
+				<h2>🎉 Thank you! 🎉</h2>
 
 				<div style={{ marginTop: '2em' }}>
 					<h3>Questions?</h3>
@@ -766,8 +789,15 @@ func BookHoliday(w http.ResponseWriter, r *http.Request) {
 						>
 							Senior Engineer @ <Loveholidays />
 						</p>
-						<p style={{ fontSize: '0.8em', marginTop: '2em' }}>
-							<em>Slides available at: [TODO: add URL]</em>
+						<p style={{ fontSize: '0.9em', marginTop: '2em' }}>
+							<strong>Slides available at:</strong>
+							<br />
+							<a
+								href='https://mikepjb.github.io/talks'
+								style={{ color: '#ffd700' }}
+							>
+								mikepjb.github.io/talks
+							</a>
 						</p>
 					</div>
 				</div>
