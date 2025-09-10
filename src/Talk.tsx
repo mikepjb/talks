@@ -743,9 +743,9 @@ func BookHoliday(w http.ResponseWriter, r *http.Request) {
 			<section>
 				<h2>The Challenge</h2>
 
-				<div style={{ fontSize: '1.5em', marginTop: '2em' }}>
+				<div style={{ marginTop: '2em' }}>
 					<blockquote
-						style={{ fontSize: '1.3em', fontWeight: 'bold' }}
+						style={{ fontSize: '1.0em', fontWeight: 'bold' }}
 					>
 						"If someone only saw my import list,<br />
 						would they understand what my application does?"
