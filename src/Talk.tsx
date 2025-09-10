@@ -1,5 +1,3 @@
-// TODO 1st slide left align text and include a picture of a lost package
-// TODO include heart emoji on so who ami i
 // TODO why am i telling you this - to have LH logo
 // TODO also generally LH logo should be properly center aligned.
 // TODO go should use Go logo
@@ -39,9 +37,18 @@
 export const Talk = () => {
 	return (
 		<div className='slides'>
-			<section>
-				<h2>Return to sender</h2>
-				<h4>Why your packages always get lost</h4>
+			<section className='intro'>
+				<div>
+					<div>
+						<h2>Return to sender</h2>
+						<h4>
+							Why your packages always get lost
+						</h4>
+					</div>
+					<div>
+						<img src='assets/no-package.png' />
+					</div>
+				</div>
 				<aside className='notes'>
 					private notes
 				</aside>
@@ -80,7 +87,7 @@ export const Talk = () => {
 					</li>
 					<li>Also interested in UI/UX</li>
 					<li>Also interested other things</li>
-					<li>It's lovely to meet you all!</li>
+					<li>It's lovely to meet you all! ❤️</li>
 				</ul>
 				<p className='italic footer'>
 					Yes we are hiring, come talk to me afterwards if you're
@@ -154,8 +161,14 @@ export const Talk = () => {
 			<section>
 				<h2>Why am I telling you this?</h2>
 				<ul>
-					<li>Started a new service at loveholidays</li>
-					<li>Returning to Go after 5 years</li>
+					<li>
+						<div className='with-logo'>
+							Started a new service at <Loveholidays />
+						</div>
+					</li>
+					<li>
+						Returning to go after 5 years
+					</li>
 					<li>Followed the "common wisdom": MVC/MVH pattern</li>
 					<li>
 						<strong>It didn't go as planned...</strong>
@@ -306,7 +319,9 @@ func SetupRoutes() {
 
 			<section>
 				<h2>Bus factor</h2>
-				<div>[simba meme]</div>
+				<div>
+					<img src='assets/legacy-code.jpg' />
+				</div>
 
 				<aside className='notes'>
 					<div>
@@ -329,34 +344,7 @@ func SetupRoutes() {
 			<section>
 				<h2>Using _test packages</h2>
 
-				<div style={{ display: 'flex', gap: '20px' }}>
-					<div style={{ flex: 1 }}>
-						<h4>payment.go</h4>
-						<pre><code data-trim data-noescape className='language-golang'>{`
-package payment
-
-func Authorise(amount int, card Card) Result {
-    // implementation...
-}
-
-type Result struct {
-    success bool
-    error   string
-}
-
-// Had to expose these!
-func (r Result) IsSuccess() bool {
-    return r.success
-}
-
-func (r Result) Error() string {
-    return r.error
-}
-						`}</code></pre>
-					</div>
-					<div style={{ flex: 1 }}>
-						<h4>payment_test.go</h4>
-						<pre><code data-trim data-noescape className='language-golang'>{`
+				<pre><code data-trim data-noescape className='language-golang'>{`
 package payment_test // NOT package payment
 
 import (
@@ -376,8 +364,6 @@ func TestAuthorisation(t *testing.T) {
     }
 }
 						`}</code></pre>
-					</div>
-				</div>
 
 				<aside className='notes'>
 					<div>
@@ -464,11 +450,7 @@ payment.Transaction{}
 			<section>
 				<h2>Hidden benefit: less coupling</h2>
 
-				[here we want to show on the left, model/view/handlers coupling
-				to other model/view/handlers in different domains as a code
-				example]
-
-				<div>[also coupling meme]</div>
+				<img src='assets/normal-distribution.jpg' />
 
 				<aside className='notes'>
 					<div>
@@ -479,9 +461,9 @@ payment.Transaction{}
 			</section>
 
 			<section>
-				<h2>We need to go deeper</h2>
+				<h2>Copying from people who thought about this more</h2>
 				<img
-					src='assets/inception-deeper.gif'
+					src='assets/deeper.jpg'
 					alt='Inception - We need to go deeper'
 				/>
 				<aside className='notes'>
@@ -815,6 +797,7 @@ func BookHoliday(w http.ResponseWriter, r *http.Request) {
 const Loveholidays = () => {
 	return (
 		<svg
+			className='logo'
 			width='160'
 			height='32'
 			viewBox='0 0 160 32'
