@@ -1,19 +1,9 @@
-// TODO why am i telling you this - to have LH logo
-// TODO also generally LH logo should be properly center aligned.
-// TODO go should use Go logo
-// TODO crycat emoji for "it didn't go as planned"
-// TODO titles should be slightly smaller to prevent wrapping OR be manually
-// wrapped
 // TODO code examples should use aliasing to demonstrate how much coding
 // gynastics are required i.e 2 model imports should have usermodel,
 // bookingmodel as their local alias name
-// TODO simba meme
-// TODO _test slide just use the _test code
 // TODO code in generally should be slightly smaller to accomodate and titles
 // should have slightly less vertical margin/padding to give more room to
 // slides in general
-// TODO standard distribution meme
-// TODO inception meme
 // TODO standard lib needs actual code usage to illustrate
 // TODO net packages need usage (stdlib)
 // TODO database package - you don't need /driver package (it's used internal
@@ -172,6 +162,7 @@ export const Talk = () => {
 					<li>Followed the "common wisdom": MVC/MVH pattern</li>
 					<li>
 						<strong>It didn't go as planned...</strong>
+						<img className='inline-img' src='assets/crycat.png' />
 					</li>
 				</ul>
 				<aside className='notes'>
