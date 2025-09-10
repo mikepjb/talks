@@ -1,5 +1,6 @@
 @import 'reveal.js/dist/reveal.css';
 @import 'reveal.js/dist/theme/black.css';
+@import 'reveal.js/plugin/highlight/monokai.css';
 @import '@fontsource/manrope/400.css';
 @import '@fontsource/manrope/600.css';
 @import '@fontsource/manrope/800.css';

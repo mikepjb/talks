@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'npm:react'
 import Reveal from 'npm:reveal.js'
 import RevealNotes from 'npm:reveal.js/plugin/notes/notes.js'
+import RevealHighlight from 'npm:reveal.js/plugin/highlight/highlight.js'
 import { Talk } from './Talk.tsx'
 
 function App() {
@@ -18,7 +19,7 @@ function App() {
 		})
 
 		deckRef.current.initialize({
-			plugins: [RevealNotes],
+			plugins: [RevealNotes, RevealHighlight],
 		})
 
 		return () => {

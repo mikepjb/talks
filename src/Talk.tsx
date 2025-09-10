@@ -1,3 +1,17 @@
+// 7. Consumer-Driven Design - Show better import structure (user/, booking/, payment/)
+// 8. Import-Driven Design Process - 3-step framework for writing imports first
+// 9. Hidden Coupling Problem - Small packages hiding big domain boundary issues
+// 10. Stdlib Example 1 - Layered storytelling (net, net/http, net/http/pprof)
+// 11. Stdlib Example 2 - Encoding family (json, xml, base64, hex)
+// 12. Stdlib Example 3 - Database ecosystem (sql, sql/driver)
+// 13. Lion King Meme - "models packages" (you have similar content)
+// 14. Testing Tip - Always test with _test packages (you have this)
+// 15. Isolation Meme - Premature package extraction (you have this)
+// 16. The Framework - 4 questions to ask
+// 17. Before & After - Transformation example
+// 18. The Challenge - Next time you create a package...
+// 19. Questions/Thank you
+
 export const Talk = () => {
 	return (
 		<div className='slides'>
@@ -114,12 +128,42 @@ export const Talk = () => {
 			</section>
 
 			<section>
-				<h2>What does this look like?</h2>
-				<code>
-					package main
+				<h2>Why am I telling you this?</h2>
+				<ul>
+					<li>Started a new service at loveholidays</li>
+					<li>Returning to Go after 5 years</li>
+					<li>Followed the "common wisdom": MVC/MVH pattern</li>
+					<li>
+						<strong>It didn't go as planned...</strong>
+					</li>
+				</ul>
+				<aside className='notes'>
+					<div>
+						This isn't theoretical - experienced teams hit this
+						problem when following conventional patterns without
+						thinking about Go's design philosophy.
+					</div>
+					<div>
+						We thought we were doing the right thing by being
+						"organised" but we made life harder for ourselves.
+					</div>
+				</aside>
+			</section>
 
-					showing model.Payment
-				</code>
+			<section>
+				<h2>What does this look like?</h2>
+				<pre><code data-trim data-noescape className='language-golang'>{`
+import (
+    "holiday-service/model"
+    "holiday-service/handler"
+    "holiday-service/service"
+    "holiday-service/util"
+    "holiday-service/repository"
+    "holiday-service/validator"
+)
+
+// What does this app even DO?
+				`}</code></pre>
 				<aside className='notes'>
 					<div>This is a bad coding pass, why?</div>
 
@@ -127,38 +171,109 @@ export const Talk = () => {
 						For the consumer, the person catching the ball - they
 						have to get into a weird position to receive your code.
 					</div>
+
+					<div>
+						It's organised by technical layers (models, handlers,
+						services) but that doesn't help someone understand what
+						the app is for.
+					</div>
 				</aside>
 			</section>
 
 			<section>
-				Conflicts!
+				<h2>This gets worse as we sub-package</h2>
 
-				<code></code>
+				<pre><code data-trim data-noescape className='language-golang'>{`
+import (
+    "holiday-service/user/model"
+    "holiday-service/user/handler"
+    "holiday-service/booking/model"
+    "holiday-service/booking/handler"
+    "holiday-service/payment/model"
+    "holiday-service/payment/handler"
+)
+
+func SetupRoutes() {
+    user := model.User{}      // Which model?
+    booking := model.Booking{} // Conflict!
+    payment := model.Payment{} // Alias required!
+}
+				`}</code></pre>
 
 				<aside className='notes'>
-					<div>This gets even worse as we get more imports</div>
-
 					<div>
-						Doubly so in this example where we have multiple model
-						imports from different model packages!
+						This gets even worse as we get more imports and
+						sub-packages
 					</div>
 
 					<div>
-						The consumer can use import aliasing, there's always
-						that guy or girl with glue for hands but we can do
-						better.
+						Now we have multiple model imports from different
+						domains, creating naming conflicts everywhere.
+					</div>
+
+					<div>
+						The consumer has to use import aliasing constantly.
+						We're making their life harder instead of easier.
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>Can you invert it?</h2>
+
+				<pre><code data-trim data-noescape className='language-golang'>{`
+import (
+    "holiday-service/model/user"
+    "holiday-service/handler/user"
+    "holiday-service/model/booking"
+    "holiday-service/handler/booking"
+    "holiday-service/model/payment"
+    "holiday-service/handler/payment"
+)
+
+func SetupRoutes() {
+    account := user.Account{}     // Still conflicts!
+    booking := booking.Booking{}  // Package name clash
+    payment := payment.Payment{}  // Stuttering
+}
+				`}</code></pre>
+
+				<aside className='notes'>
+					<div>
+						Some teams try to "fix" this by inverting - putting the technical layer first, domain second.
+					</div>
+					<div>
+						But this doesn't solve the fundamental problem - you still get conflicts and stuttering.
+					</div>
+					<div>
+						Plus now your imports tell an even worse story - "we have models and handlers" instead of "we handle holidays".
 					</div>
 				</aside>
 			</section>
 
 			<section>
 				<h2>Design packages for consumption</h2>
+
+				<blockquote>
+					"The bigger the interface, the weaker the abstraction"<br />
+					"Interfaces belong in the package that uses them"
+				</blockquote>
+
 				<div>
-					Like the go proverb on interfaces (copy in here), we should
-					be designing packages for the consumer
+					Packages are just another interface we write in Go!
 				</div>
 
-				<div>[picture of sushi box]</div>
+				<aside className='notes'>
+					<div>
+						Just like Go interfaces should be defined by the
+						consumer, not the provider, packages should be
+						structured for consumption.
+					</div>
+					<div>
+						The people importing your packages shouldn't have to
+						understand your internal organisation choices.
+					</div>
+				</aside>
 			</section>
 
 			<section>
@@ -186,23 +301,130 @@ export const Talk = () => {
 			<section>
 				<h2>Using _test packages</h2>
 
-				<code>[code example]</code>
+				<div style={{ display: 'flex', gap: '20px' }}>
+					<div style={{ flex: 1 }}>
+						<h4>payment.go</h4>
+						<pre><code data-trim data-noescape className='language-golang'>{`
+package payment
+
+func Authorise(amount int, card Card) Result {
+    // implementation...
+}
+
+type Result struct {
+    success bool
+    error   string
+}
+
+// Had to expose these!
+func (r Result) IsSuccess() bool {
+    return r.success
+}
+
+func (r Result) Error() string {
+    return r.error
+}
+						`}</code></pre>
+					</div>
+					<div style={{ flex: 1 }}>
+						<h4>payment_test.go</h4>
+						<pre><code data-trim data-noescape className='language-golang'>{`
+package payment_test // NOT package payment
+
+import (
+    "testing"
+    "holiday-service/payment" // Import like a consumer!
+)
+
+func TestAuthorisation(t *testing.T) {
+    result := payment.Authorise(
+        100, 
+        payment.Card{...},
+    )
+    
+    // Can I get what I need?
+    if !result.IsSuccess() {
+        t.Errorf("failed: %s", result.Error())
+    }
+}
+						`}</code></pre>
+					</div>
+				</div>
 
 				<aside className='notes'>
 					<div>
-						If you aren't already, I really recommend to use _test
-						packages which will force you to use the interface as
-						you build the package.
+						Using _test packages forces you to consume your own
+						package exactly like your users will.
 					</div>
 
 					<div>
-						The beauty of this is that, you can work on an existing
-						codebase and start here to understand the lay of the
-						land.
+						You immediately feel the pain of a bad API because you
+						can't cheat and access internals.
 					</div>
 
 					<div>
-						Before you start making larger file structure changes
+						If testing is painful, using your package will be
+						painful. Fix it now, not after someone complains.. you
+						may or may not also be the person that complains!
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>Flat packages are friendly packages</h2>
+
+				<div style={{ display: 'flex', gap: '20px' }}>
+					<div style={{ flex: 1 }}>
+						<h4>Nested = Conflicts</h4>
+						<pre><code data-trim data-noescape className='language-golang'>{`
+import (
+    "holiday-service/user/model"
+    "holiday-service/booking/model"
+    "holiday-service/payment/model"
+)
+
+// All import as "model"!
+userModel.User{}
+bookingModel.Booking{}
+paymentModel.Payment{}
+
+// Or worse:
+"holiday-service/model/user"
+"holiday-service/handler/user"
+// Both import as "user"!
+						`}</code></pre>
+					</div>
+					<div style={{ flex: 1 }}>
+						<h4>Flat = Friendly</h4>
+						<pre><code data-trim data-noescape className='language-golang'>{`
+import (
+    "holiday-service/user"
+    "holiday-service/booking"
+    "holiday-service/payment"
+)
+
+// Natural package names
+user.Account{}
+booking.Reservation{}
+payment.Transaction{}
+
+// Everything in one place
+// No artificial splitting
+// No import conflicts
+// More flexibility
+						`}</code></pre>
+					</div>
+				</div>
+
+				<aside className='notes'>
+					<div>
+						The key insight: avoid sub-packaging until you have a really good reason.
+					</div>
+					<div>
+						Flat packages give you flexibility - you can organize internally however you want without forcing consumers to deal with your structure.
+					</div>
+					<div>
+						Whether you prefer domain or technical organization internally, keep your package surface flat and friendly.
 					</div>
 				</aside>
 			</section>
@@ -220,6 +442,293 @@ export const Talk = () => {
 					<div>
 						Isolation can hide coupling by allowing dependencies
 						between domains at different levels
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>We need to go deeper</h2>
+				<img src='assets/inception-deeper.gif' alt='Inception - We need to go deeper' />
+				<aside className='notes'>
+					<div>
+						Let's look at the layer beneath all our code - the Go standard library.
+					</div>
+					<div>
+						The stdlib is the foundation every Go programmer builds on, and it demonstrates these principles perfectly.
+					</div>
+					<div>
+						How does the Go team organize packages when they have to support millions of developers?
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>Stdlib Example: Layered storytelling</h2>
+				
+				<pre><code data-trim data-noescape className='language-golang'>{`
+import (
+    "net"                // Base networking primitives
+    "net/http"          // HTTP protocol built on net
+    "net/http/pprof"    // Profiling tools via HTTP
+)
+
+// Each layer builds on the last
+// The story gets more specific as you go deeper
+// But each package name still makes sense!
+				`}</code></pre>
+
+				<aside className='notes'>
+					<div>
+						Look at this import list - even without seeing the code, you know this is doing HTTP networking with profiling.
+					</div>
+					<div>
+						The packages tell an architectural story - from low-level networking up to specific HTTP profiling tools.
+					</div>
+					<div>
+						Notice how sub-packages are used here with real purpose - each layer genuinely extends the parent.
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>Stdlib Example: Database ecosystem</h2>
+				
+				<pre><code data-trim data-noescape className='language-golang'>{`
+import (
+    "database/sql"        // Generic database interface
+    "database/sql/driver" // Driver implementation contract
+    
+    // Then you'd import a specific driver:
+    _ "github.com/lib/pq" // PostgreSQL driver
+)
+
+// Clear separation of concerns:
+db, err := sql.Open("postgres", connStr)
+// Consumer uses sql.DB, never touches driver directly
+				`}</code></pre>
+
+				<aside className='notes'>
+					<div>
+						Perfect example of interface/implementation separation.
+					</div>
+					<div>
+						The sql package provides the user-facing API, sql/driver defines what drivers must implement.
+					</div>
+					<div>
+						Users only deal with sql package - the driver complexity is hidden but the structure tells the whole story.
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>Stdlib Example: The encoding family</h2>
+				
+				<pre><code data-trim data-noescape className='language-golang'>{`
+import (
+    "encoding/json"     // JSON marshaling
+    "encoding/xml"      // XML marshaling  
+    "encoding/base64"   // Base64 encoding
+    "encoding/hex"      // Hex encoding
+)
+
+// Parallel capabilities under one parent
+// Each package is independent
+// Clear what each one does: json.Marshal(), xml.Unmarshal()
+				`}</code></pre>
+
+				<aside className='notes'>
+					<div>
+						The encoding package groups related but independent functionality.
+					</div>
+					<div>
+						Each sub-package is self-contained - you never import encoding itself, just the specific format you need.
+					</div>
+					<div>
+						This is good sub-packaging - grouping related packages that share a common abstraction.
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>Extending without breaking: json/v2</h2>
+				
+				<pre><code data-trim data-noescape className='language-golang'>{`
+import (
+    "encoding/json"           // Original API - unchanged!
+    "encoding/json/v2"        // New semantic layer
+    "encoding/json/jsontext"  // New syntax layer
+)
+
+// The Go team faced a challenge:
+// How to improve JSON after 10+ years?
+
+// Solution: Thoughtful package structure
+// - Keep existing code working
+// - Add new capabilities in new packages
+// - Use v2 internally to power v1!
+				`}</code></pre>
+
+				<aside className='notes'>
+					<div>
+						After 10+ years, the Go team needed to extend JSON handling without breaking millions of programs.
+					</div>
+					<div>
+						They separated concerns: jsontext for syntax, v2 for Go-JSON mapping, and kept v1 stable.
+					</div>
+					<div>
+						This shows mature package design - evolution without revolution, clear naming that tells the story.
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>Actionable advice</h2>
+				
+				<div style={{ fontSize: '1.2em' }}>
+					<h3>✅ DO</h3>
+					<ul>
+						<li><strong>Flat packages are friendly packages</strong></li>
+						<li>Use _test packages to feel your own API</li>
+						<li>Write your imports first - what story do they tell?</li>
+						<li>Name packages by what they provide, not what they contain</li>
+					</ul>
+					
+					<h3>❌ DON'T</h3>
+					<ul>
+						<li>Sub-package without a really good reason</li>
+						<li>Create model/, handler/, service/ packages</li>
+						<li>Name packages that conflict (all become "model")</li>
+						<li>Forget: packages are interfaces too</li>
+					</ul>
+				</div>
+
+				<aside className='notes'>
+					<div>
+						These are the key takeaways you can apply tomorrow.
+					</div>
+					<div>
+						Start with flat packages, use _test to validate your API, and always think about the import story.
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>Before & After: Real transformation</h2>
+				
+				<div style={{ display: 'flex', gap: '20px' }}>
+					<div style={{ flex: 1 }}>
+						<h4>Before</h4>
+						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
+import (
+    "holiday-service/model"
+    "holiday-service/handler"
+    "holiday-service/service"
+)
+
+func BookHoliday(w http.ResponseWriter, r *http.Request) {
+    // Which model? User? Booking? Payment?
+    m := model.Booking{}
+    
+    // Generic service tells us nothing
+    svc := service.New()
+    
+    // Handler for what?
+    h := handler.Process(m, svc)
+    
+    // What story does this tell?
+}
+						`}</code></pre>
+					</div>
+					<div style={{ flex: 1 }}>
+						<h4>After</h4>
+						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
+import (
+    "holiday-service/user"
+    "holiday-service/booking"
+    "holiday-service/payment"
+)
+
+func BookHoliday(w http.ResponseWriter, r *http.Request) {
+    // Clear what each package does
+    u := user.Current(r.Context())
+    
+    // Natural, readable flow
+    b := booking.Reserve(hotelID, dates)
+    
+    // Domain is obvious
+    payment.Charge(u, b.Total())
+    
+    // The code tells the business story!
+}
+						`}</code></pre>
+					</div>
+				</div>
+
+				<aside className='notes'>
+					<div>
+						Look how the same function transforms when packages are designed for consumption.
+					</div>
+					<div>
+						The "after" code reads like a business requirement: get the user, make a booking, charge payment.
+					</div>
+					<div>
+						This is what good package design enables - code that tells the story of your domain.
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>The Challenge</h2>
+				
+				<div style={{ fontSize: '1.3em', marginTop: '2em' }}>
+					<p><strong>Next time you create a package, ask yourself:</strong></p>
+					
+					<blockquote style={{ fontSize: '1.2em', marginTop: '1em' }}>
+						"If someone only saw my import list,<br/>
+						would they understand what my application does?"
+					</blockquote>
+					
+					<p style={{ marginTop: '2em', fontWeight: 'bold' }}>
+						Because packages belong to the people who use them.
+					</p>
+				</div>
+
+				<aside className='notes'>
+					<div>
+						This is the one question I want you to take away from this talk.
+					</div>
+					<div>
+						Your import list should be living documentation of your system architecture.
+					</div>
+					<div>
+						If it doesn't tell a clear story, it's time to refactor.
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>Thank you!</h2>
+				
+				<div style={{ marginTop: '2em' }}>
+					<h3>Questions?</h3>
+					
+					<div style={{ marginTop: '3em' }}>
+						<p>Mike Bruce</p>
+						<p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+							Senior Engineer @ <Loveholidays />
+						</p>
+						<p style={{ fontSize: '0.8em', marginTop: '2em' }}>
+							<em>Slides available at: [TODO: add URL]</em>
+						</p>
+					</div>
+				</div>
+
+				<aside className='notes'>
+					<div>
+						Thank you for listening! Happy to take questions.
+					</div>
+					<div>
+						Remember - back to the basics, design for consumption.
 					</div>
 				</aside>
 			</section>
