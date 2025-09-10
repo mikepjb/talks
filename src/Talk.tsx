@@ -297,6 +297,11 @@ func SetupRoutes() {
 					but you can match the mental models already there.
 				</div>
 
+				<div>
+					The consumer interface has already been written, so let's
+					use it!
+				</div>
+
 				<div style={{ marginTop: '2em' }}>
 					<code style={{ fontSize: '1.2em' }}>
 						booking.Create() → payment.Charge()
