@@ -767,14 +767,16 @@ enc.WriteToken(jsontext.ObjectEnd)
 				<div style={{ marginTop: '2em' }}>
 					<h3>Questions?</h3>
 
-					<div style={{ marginTop: '3em' }}>
+					<div style={{ marginTop: '2em' }}>
 						<p>Mike Bruce</p>
 						<p
+							className='off'
 							style={{
+								fontSize: '1.5rem',
 								display: 'flex',
 								alignItems: 'center',
 								justifyContent: 'center',
-								gap: '10px',
+								marginTop: '-1rem',
 							}}
 						>
 							Senior Engineer @ <Loveholidays />
