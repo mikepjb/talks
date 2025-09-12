@@ -14,7 +14,23 @@ export const Talk = () => {
 					</div>
 				</div>
 				<aside className='notes'>
-					private notes
+					<div>Thanks X, it's great to be here!</div>
+
+					<div>
+						Sometimes, we developers can get ourselves in a mess.
+						Taking this meme literally, we can sometimes be the
+						delivery driver and the recipient.
+					</div>
+
+					<div>
+						Either way the result is the same, only we end up
+						annoyed with ourselves!
+					</div>
+
+					<div>
+						[if not said] This talk is called: return to sender, why
+						your packages always get lost.
+					</div>
 				</aside>
 			</section>
 
@@ -64,6 +80,10 @@ export const Talk = () => {
 					Yes we are hiring, come talk to me afterwards if you're
 					interested.
 				</p>
+
+				<aside className='notes'>
+					..read the bullet points LOL
+				</aside>
 			</section>
 
 			<section data-timing={20}>
@@ -148,13 +168,11 @@ export const Talk = () => {
 				</ul>
 				<aside className='notes'>
 					<div>
-						This isn't theoretical - experienced teams hit this
-						problem when following conventional patterns without
-						thinking about Go's design philosophy.
+						Apparently off the field I play just same at the
+						keyboard.
 					</div>
 					<div>
-						We thought we were doing the right thing by being
-						"organised" but we made life harder for ourselves.
+						Read the slides...
 					</div>
 				</aside>
 			</section>
