@@ -360,13 +360,9 @@ import (
 )
 
 func TestAuthorisation(t *testing.T) {
-    result := payment.Authorise(
-        100,
-        payment.Card{...},
-    )
+    result := payment.Authorise(100, payment.Card{...})
 
-    // Can I get what I need?
-    if !result.IsSuccess() {
+    if !result.IsSuccess() { // Can I get what I need?
         t.Errorf("failed: %s", result.Error())
     }
 }
@@ -406,7 +402,7 @@ func TestAuthorisation(t *testing.T) {
 			</section>
 
 			<section>
-				<h2>Hidden benefit: less coupling</h2>
+				<h2>Hidden benefit: compiler checks!</h2>
 
 				<div style={{ display: 'flex', gap: '20px' }}>
 					<div style={{ flex: 1 }}>
@@ -423,11 +419,9 @@ import (
     "user/repository"
     "booking/model"
 )
-
 // No cyclic import! 🙈
 // But spaghetti code...
-// Too late when you try
-// to change anything
+// Then it's too late...
 						`}</code></pre>
 					</div>
 					<div style={{ flex: 1 }}>
@@ -509,7 +503,10 @@ booking.Reservation{}
 			</section>
 
 			<section>
-				<h2>Stdlib Example: Architectural layers</h2>
+				<h2>
+					Stdlib Example: <code>net</code>
+				</h2>
+				<h5>Demonstrating architectural layering</h5>
 
 				<pre><code data-trim data-noescape className='language-golang'>{`
 import (
@@ -572,7 +569,10 @@ _ = pprof.Handler("goroutine")               // Profiling via HTTP
 			</section>
 
 			<section>
-				<h2>Stdlib Example: Database ecosystem</h2>
+				<h2>
+					Stdlib Example: <code>database</code>
+				</h2>
+				<h5>Abstracting a common interface</h5>
 
 				<pre><code data-trim data-noescape className='language-golang'>{`
 import (
@@ -606,7 +606,10 @@ rows, err := db.Query("SELECT * FROM users")  // Generic interface
 			</section>
 
 			<section>
-				<h2>Stdlib Example: The encoding family</h2>
+				<h2>
+					Stdlib Example: <code>encoding</code>
+				</h2>
+				<h5>Independent family of packages</h5>
 
 				<pre><code data-trim data-noescape className='language-golang'>{`
 import (
@@ -633,6 +636,11 @@ decoded, _ := hex.DecodeString("48656c6c6f") // Decode hex
 						abstraction.
 					</div>
 					<div>
+						While there is no common interface here, there is a
+						common package level interface for the concept of
+						encoding.
+					</div>
+					<div>
 						You never import "encoding" itself - just the specific
 						format you need. Each sub-package is completely
 						self-contained with no dependencies between them.
@@ -646,7 +654,10 @@ decoded, _ := hex.DecodeString("48656c6c6f") // Decode hex
 			</section>
 
 			<section>
-				<h2>Extending without breaking: json/v2</h2>
+				<h2>
+					<code>json/v2</code>
+				</h2>
+				<h5>Extending without breaking</h5>
 
 				<pre><code data-trim data-noescape className='language-golang'>{`
 import (
@@ -655,8 +666,7 @@ import (
     "encoding/json/jsontext"  // New syntax layer
 )
 
-// v1 still works:
-data, _ := json.Marshal(user)
+data, _ := json.Marshal(user) // v1 still works:
 
 // v2 adds streaming and better control:
 enc := jsontext.NewEncoder(os.Stdout)
@@ -664,8 +674,6 @@ enc.WriteToken(jsontext.ObjectStart)
 enc.WriteToken(jsontext.String("name"))
 enc.WriteToken(jsontext.String(user.Name))
 enc.WriteToken(jsontext.ObjectEnd)
-
-// Evolution without breaking existing code!
 				`}</code></pre>
 
 				<aside className='notes'>
@@ -681,6 +689,10 @@ enc.WriteToken(jsontext.ObjectEnd)
 						This shows mature package design - evolution without
 						revolution, clear naming that tells the story.
 					</div>
+					<div>
+						I'm not actually sure how I feel about this one but it's
+						interesting!
+					</div>
 				</aside>
 			</section>
 
@@ -693,132 +705,22 @@ enc.WriteToken(jsontext.ObjectEnd)
 					<li>think about the developer who will use your package</li>
 				</ul>
 
+				<blockquote>
+					"If somebody imported this package,<br />
+					how would they try to use it?"
+				</blockquote>
+
 				<aside className='notes'>
 					<div>
 						These are the key takeaways you can apply tomorrow.
 					</div>
 					<div>
-						Start with flat packages, use _test to validate your
-						API, and always think about the import story.
-					</div>
-				</aside>
-			</section>
-
-			<section>
-				<h2>Putting this together</h2>
-
-				<div style={{ display: 'flex', gap: '20px' }}>
-					<div style={{ flex: 1 }}>
-						<h4>Before</h4>
-						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.75em' }}>{`
-import (
-    "holiday-service/handler"
-    "holiday-service/model"
-    "holiday-service/service"
-    "holiday-service/repository"
-    "holiday-service/validator"
-)
-
-func BookHoliday(w http.ResponseWriter, r *http.Request) {
-    // Multiple imports needed for simple task
-    userRepo := repository.NewUser()
-    bookingRepo := repository.NewBooking()
-    paymentSvc := service.NewPayment()
-
-    validator := validator.New()
-
-    // Code scattered across technical layers
-    user, _ := userRepo.FindByID(userID)
-    booking := model.Booking{UserID: user.ID, ...}
-
-    if err := validator.ValidateBooking(booking); err != nil {
-        handler.Error(w, err)
-        return
-    }
-
-    bookingRepo.Save(booking)
-    paymentSvc.Process(booking.Total)
-}
-						`}</code></pre>
-					</div>
-					<div style={{ flex: 1 }}>
-						<h4>After</h4>
-						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.75em' }}>{`
-import (
-    "holiday-service/user"
-    "holiday-service/booking"
-    "holiday-service/payment"
-)
-
-func BookHoliday(w http.ResponseWriter, r *http.Request) {
-    // Business domain is immediately clear
-    currentUser, err := user.FromContext(r.Context())
-    if err != nil {
-        http.Error(w, "unauthorized", 401)
-        return
-    }
-
-    // Natural workflow follows business process
-    reservation, err := booking.Create(currentUser.ID, hotelID, dates)
-    if err != nil {
-        http.Error(w, err.Error(), 400)
-        return
-    }
-
-    // Payment naturally follows booking
-    err = payment.Charge(currentUser, reservation.Total())
-    if err != nil {
-        booking.Cancel(reservation.ID)
-        http.Error(w, "payment failed", 400)
-        return
-    }
-
-    json.NewEncoder(w).Encode(reservation)
-}
-						`}</code></pre>
-					</div>
-				</div>
-
-				<aside className='notes'>
-					<div>
-						Look how the same function transforms when packages are
-						designed for consumption.
-					</div>
-					<div>
-						The "after" code reads like a business requirement: get
-						the user, make a booking, charge payment.
-					</div>
-					<div>
-						This is what good package design enables - code that
-						tells the story of your domain.
-					</div>
-				</aside>
-			</section>
-
-			<section>
-				<h2>The Challenge</h2>
-
-				<div style={{ marginTop: '2em' }}>
-					<blockquote
-						style={{ fontSize: '1.0em', fontWeight: 'bold' }}
-					>
-						"If someone only saw my import list,<br />
-						would they understand what my application does?"
-					</blockquote>
-
-					<p style={{ marginTop: '2em', fontWeight: 'bold' }}>
-						Packages belong to the people who use them.
-					</p>
-				</div>
-
-				<aside className='notes'>
-					<div>
 						This is the one question I want you to take away from
 						this talk.
 					</div>
 					<div>
-						Your import list should be living documentation of your
-						system architecture.
+						Your project structure should be living documentation of
+						your system architecture.
 					</div>
 					<div>
 						Just like we write interfaces in the consuming package,
