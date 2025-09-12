@@ -67,7 +67,7 @@ export const Talk = () => {
 			</section>
 
 			<section data-timing={20}>
-				<img src='assets/dwight-basic.gif' />
+				<img className='stretch' src='assets/dwight-basic.gif' />
 				<div>Pretty basic?</div>
 				<aside className='notes'>
 					<p>
@@ -87,7 +87,7 @@ export const Talk = () => {
 			</section>
 
 			<section>
-				<img src='assets/kick-contest.jpg' />
+				<img className='stretch' src='assets/kick-contest.jpg' />
 				<div>Have you mastered the basics?</div>
 				<aside className='notes'>
 					<p>Yes and no. Let me tell you a quick story.</p>
@@ -163,15 +163,15 @@ export const Talk = () => {
 				<h2>What does this look like?</h2>
 				<pre><code data-trim data-noescape className='language-golang'>{`
 import (
-    "holiday-service/model"
+    "holiday-service/model" // okay, nice separation of concerns..
     "holiday-service/handler"
     "holiday-service/service"
-    "holiday-service/util"
-    "holiday-service/repository"
-    "holiday-service/validator"
+    "holiday-service/util" // this is always here..
+    "holiday-service/repository" // okay we get something, from somewhere..
+    "holiday-service/validator" // validation.. ok, but WHAT do we check?
 )
 
-// What does this app even DO?
+// but what does this app even DO?
 				`}</code></pre>
 				<aside className='notes'>
 					<div>This is a bad coding pass, why?</div>
@@ -273,7 +273,7 @@ func SetupRoutes() {
 				</blockquote>
 
 				<div>
-					Packages are just another interface we write in Go!
+					Packages are just another type of interface
 				</div>
 
 				<aside className='notes'>
@@ -292,20 +292,15 @@ func SetupRoutes() {
 			<section>
 				<h2>Can you apply the same principle?</h2>
 
-				<div>
-					You can't write code in people's heads,<br />
-					but you can match the mental models already there.
-				</div>
-
-				<div>
-					The consumer interface has already been written, so let's
-					use it!
-				</div>
-
-				<div style={{ marginTop: '2em' }}>
-					<code style={{ fontSize: '1.2em' }}>
-						booking.Create() → payment.Charge()
-					</code>
+				<div style={{ display: 'flex', alignItems: 'center' }}>
+					<div>
+						Your code should reflect how users think about the
+						domain. This is your consumer interface.
+					</div>
+					<img
+						className='stretch'
+						src='assets/developers-developers-developers.gif'
+					/>
 				</div>
 
 				<aside className='notes'>
@@ -333,9 +328,7 @@ func SetupRoutes() {
 
 			<section>
 				<h2>Bus factor</h2>
-				<div>
-					<img src='assets/legacy-code.jpg' />
-				</div>
+				<img className='stretch' src='assets/legacy-code.jpg' />
 
 				<aside className='notes'>
 					<div>
@@ -399,64 +392,15 @@ func TestAuthorisation(t *testing.T) {
 			</section>
 
 			<section>
-				<h2>Flat packages are friendly packages</h2>
+				<h2>Flat packages are</h2>
+				<h2>friendly packages</h2>
 
-				<div style={{ display: 'flex', gap: '20px' }}>
-					<div style={{ flex: 1 }}>
-						<h4>Nested = Conflicts</h4>
-						<pre><code data-trim data-noescape className='language-golang'>{`
-import (
-    "holiday-service/user/model"
-    "holiday-service/booking/model"
-    "holiday-service/payment/model"
-)
-
-// All import as "model"!
-userModel.User{}
-bookingModel.Booking{}
-paymentModel.Payment{}
-
-// Or worse:
-"holiday-service/model/user"
-"holiday-service/handler/user"
-// Both import as "user"!
-						`}</code></pre>
-					</div>
-					<div style={{ flex: 1 }}>
-						<h4>Flat = Friendly</h4>
-						<pre><code data-trim data-noescape className='language-golang'>{`
-import (
-    "holiday-service/user"
-    "holiday-service/booking"
-    "holiday-service/payment"
-)
-
-// Natural package names
-user.Account{}
-booking.Reservation{}
-payment.Transaction{}
-
-// Everything in one place
-// No artificial splitting
-// No import conflicts
-// More flexibility
-						`}</code></pre>
-					</div>
-				</div>
+				<img className='stretch' src='assets/normal-distribution.jpg' />
 
 				<aside className='notes'>
 					<div>
-						The key insight: avoid sub-packaging until you have a
-						really good reason.
-					</div>
-					<div>
-						Flat packages give you flexibility - you can organize
-						internally however you want without forcing consumers to
-						deal with your structure.
-					</div>
-					<div>
-						Whether you prefer domain or technical organization
-						internally, keep your package surface flat and friendly.
+						Isolation can hide coupling by allowing dependencies
+						between domains at different levels
 					</div>
 				</aside>
 			</section>
@@ -464,12 +408,80 @@ payment.Transaction{}
 			<section>
 				<h2>Hidden benefit: less coupling</h2>
 
-				<img src='assets/normal-distribution.jpg' />
+				<div style={{ display: 'flex', gap: '20px' }}>
+					<div style={{ flex: 1 }}>
+						<h5>Sub-packages hide coupling</h5>
+						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
+// user/handler.go
+import (
+    "booking/model"
+    "user/model"
+)
+
+// booking/handler.go
+import (
+    "user/repository"
+    "booking/model"
+)
+
+// No cyclic import! 🙈
+// But spaghetti code...
+// Too late when you try
+// to change anything
+						`}</code></pre>
+					</div>
+					<div style={{ flex: 1 }}>
+						<h5>Flat packages prevent this</h5>
+						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
+// user/user.go
+import "booking"
+
+// booking/booking.go
+import "user"
+
+// Compiler error! 💥
+// Forces design fix early
+
+user.Account{}
+booking.Reservation{}
+						`}</code></pre>
+					</div>
+				</div>
 
 				<aside className='notes'>
 					<div>
-						Isolation can hide coupling by allowing dependencies
-						between domains at different levels
+						This is the hidden danger of sub-packaging - it can mask
+						coupling by allowing cross-dependencies at different
+						layers.
+					</div>
+					<div>
+						Flat packages force you to confront coupling issues
+						early, when they're easier to fix.
+					</div>
+					<div>
+						The compiler becomes your friend, stopping you from
+						creating spaghetti before it's too late.
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>What's in the folder?</h2>
+
+				<pre><code data-trim data-noescape className='code language-bash'>{`
+├── order # high-level, a user account has orders
+│   ├── model.go # still separate concerns by MVC if you want internally
+│   ├── model_test.go
+│   ├── postgres.go # could be repository.go but when do you change dbs?
+│   ├── postgres_test.go
+│   ├── pricing.go # hidden implementation detail, split how you like!
+│   ├── pricing_test.go
+│   └── voucher_test.go
+						`}</code></pre>
+
+				<aside className='notes'>
+					<div>
+						something
 					</div>
 				</aside>
 			</section>
@@ -497,7 +509,7 @@ payment.Transaction{}
 			</section>
 
 			<section>
-				<h2>Stdlib Example: Layered storytelling</h2>
+				<h2>Stdlib Example: Architectural layers</h2>
 
 				<pre><code data-trim data-noescape className='language-golang'>{`
 import (
@@ -511,8 +523,8 @@ listener, err := net.Listen("tcp", ":8080")  // Base networking
 server := &http.Server{Handler: mux}        // HTTP layer
 _ = pprof.Handler("goroutine")               // Profiling via HTTP
 
-// Each layer builds on the last
-// The story gets more specific as you go deeper
+// Each layer builds on the previous
+// Progressive specialization, not artificial splitting
 				`}</code></pre>
 
 				<aside className='notes'>
@@ -521,13 +533,40 @@ _ = pprof.Handler("goroutine")               // Profiling via HTTP
 						you know this is doing HTTP networking with profiling.
 					</div>
 					<div>
-						The packages tell an architectural story - from
-						low-level networking up to specific HTTP profiling
-						tools.
+						This shows good sub-packaging: each layer genuinely
+						extends the parent with real architectural purpose.
 					</div>
 					<div>
-						Notice how sub-packages are used here with real purpose
-						- each layer genuinely extends the parent.
+						It's progressive specialization - net → HTTP → profiling
+						- not arbitrary technical splitting.
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>What's in http stdlib folder?</h2>
+
+				<pre><code data-trim data-noescape className='code language-bash'>{`
+├── http # 13 directories, 110 files!
+│   ├── alpn_test.go
+│   ├── async_test.go
+│   ├── cgi
+│   │   ├── cgi_main.go
+│   │   ├── child.go
+│   │   ├── child_test.go
+│   │   ├── host.go
+│   │   ├── host_test.go
+│   │   └── integration_test.go
+│   ├── client.go # contains the http.Client we know and love <3
+│   ├── clientserver_test.go
+│   ├── client_test.go
+│   ├── clone.go
+│   ├── cookie.go # contains http.Cookie
+						`}</code></pre>
+
+				<aside className='notes'>
+					<div>
+						something
 					</div>
 				</aside>
 			</section>
@@ -646,46 +685,13 @@ enc.WriteToken(jsontext.ObjectEnd)
 			</section>
 
 			<section>
-				<h2>Actionable advice</h2>
+				<h2>In Summary</h2>
 
-				<div
-					style={{ display: 'flex', gap: '3rem', fontSize: '1.1em' }}
-				>
-					<div style={{ flex: 1 }}>
-						<h3>✅</h3>
-						<ul>
-							<li>
-								<strong>
-									Flat packages are friendly packages
-								</strong>
-							</li>
-							<li>Use _test packages to feel your own API</li>
-							<li>
-								Write your imports first - what story do they
-								tell?
-							</li>
-							<li>
-								Name packages by what they provide, not what
-								they contain
-							</li>
-						</ul>
-					</div>
-
-					<div style={{ flex: 1 }}>
-						<h3>❌</h3>
-						<ul>
-							<li>
-								Sub-package unless grouping truly independent
-								packages (like encoding/*)
-							</li>
-							<li>Create model/, handler/, service/ packages</li>
-							<li>
-								Name packages that conflict (all become "model")
-							</li>
-							<li>Forget: packages are interfaces too</li>
-						</ul>
-					</div>
-				</div>
+				<ul>
+					<li>flat packages == friendly packages</li>
+					<li>_test packages test drive the package interface</li>
+					<li>think about the developer who will use your package</li>
+				</ul>
 
 				<aside className='notes'>
 					<div>

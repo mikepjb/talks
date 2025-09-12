@@ -3,6 +3,7 @@
   "specifiers": {
     "jsr:@std/assert@1": "1.0.14",
     "jsr:@std/internal@^1.0.10": "1.0.10",
+    "npm:@fontsource-variable/recursive@^5.2.7": "5.2.7",
     "npm:@fontsource/manrope@^5.2.7": "5.2.7",
     "npm:@fontsource/recursive@^5.2.7": "5.2.7",
     "npm:@types/react@^19.1.12": "19.1.12",
@@ -156,6 +157,9 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
+    "@fontsource-variable/recursive@5.2.7": {
+      "integrity": "sha512-6hDJ9EDUxShoqhmxV3B+q8k6YC7cBBzVvDapNAESDIn53SzBC7y1KbEr/aha70zx/GWJiNTTVf7gdJ3B5K1/vg=="
+    },
     "@fontsource/manrope@5.2.7": {
       "integrity": "sha512-vTSStXpF7mhA4k+b6u/wlFncS+LIXRRs7fFCvsYk23Xd1pc2IN33Mv/HLVwkWKuy1mFgz9m0MNGsOhihThQITw=="
     },
@@ -224,6 +228,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@1",
+      "npm:@fontsource-variable/recursive@^5.2.7",
       "npm:@fontsource/manrope@^5.2.7",
       "npm:@fontsource/recursive@^5.2.7",
       "npm:@types/react@^19.1.12",
