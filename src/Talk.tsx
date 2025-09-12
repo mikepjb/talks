@@ -413,6 +413,9 @@ func TestAuthorisation(t *testing.T) {
 
 				<aside className='notes'>
 					<div>
+						[pause so people can enjoy the meme]
+					</div>
+					<div>
 						Isolation can hide coupling by allowing dependencies
 						between domains at different levels
 					</div>
