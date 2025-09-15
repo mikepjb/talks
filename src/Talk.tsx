@@ -736,6 +736,357 @@ enc.WriteToken(jsontext.ObjectEnd)
 						These are the key takeaways you can apply tomorrow.
 					</div>
 					<div>
+						Start with flat packages, use _test to validate your
+						API, and always think about the import story.
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>Putting this together</h2>
+
+				<div style={{ display: 'flex', gap: '20px' }}>
+					<div style={{ flex: 1 }}>
+						<h4>Before</h4>
+						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.75em' }}>{`
+import (
+    "holiday-service/handler"
+    "holiday-service/model"
+    "holiday-service/service"
+    "holiday-service/repository"
+    "holiday-service/validator"
+)
+
+func BookHoliday(w http.ResponseWriter, r *http.Request) {
+    // Multiple imports needed for simple task
+    userRepo := repository.NewUser()
+    bookingRepo := repository.NewBooking()
+    paymentSvc := service.NewPayment()
+
+    validator := validator.New()
+
+    // Code scattered across technical layers
+    user, _ := userRepo.FindByID(userID)
+    booking := model.Booking{UserID: user.ID, ...}
+
+    if err := validator.ValidateBooking(booking); err != nil {
+        handler.Error(w, err)
+        return
+    }
+
+    bookingRepo.Save(booking)
+    paymentSvc.Process(booking.Total)
+}
+						`}</code></pre>
+					</div>
+					<div style={{ flex: 1 }}>
+						<h4>After</h4>
+						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.75em' }}>{`
+import (
+    "holiday-service/user"
+    "holiday-service/booking"
+    "holiday-service/payment"
+)
+
+func BookHoliday(w http.ResponseWriter, r *http.Request) {
+    // Business domain is immediately clear
+    currentUser, err := user.FromContext(r.Context())
+    if err != nil {
+        http.Error(w, "unauthorized", 401)
+        return
+    }
+
+    // Natural workflow follows business process
+    reservation, err := booking.Create(currentUser.ID, hotelID, dates)
+    if err != nil {
+        http.Error(w, err.Error(), 400)
+        return
+    }
+
+    // Payment naturally follows booking
+    err = payment.Charge(currentUser, reservation.Total())
+    if err != nil {
+        booking.Cancel(reservation.ID)
+        http.Error(w, "payment failed", 400)
+        return
+    }
+
+    json.NewEncoder(w).Encode(reservation)
+}
+						`}</code></pre>
+					</div>
+				</div>
+
+				<aside className='notes'>
+					<div>
+						Look how the same function transforms when packages are
+						designed for consumption.
+					</div>
+					<div>
+						The "after" code reads like a business requirement: get
+						the user, make a booking, charge payment.
+					</div>
+					<div>
+						This is what good package design enables - code that
+						tells the story of your domain.
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>⚠️ We slipped up on the flat!</h2>
+				<pre><code data-trim data-noescape className='language-golang'>{`
+import (
+    "loveholidays/booking"
+    "loveholidays/payment"
+)
+
+func ProcessBooking(id string) error {
+    // This seems innocent enough...
+    booking := booking.Find(id)  // 💥 Wait, what?
+
+    // Later in the same function:
+    another := booking.Booking{}  // ❌ Compiler error!
+    // "booking" is now a variable, not a package!
+
+    // Even funnier with http:
+    http := &http.Client{}
+    resp := http.Get("...")  // ❌ Client has no Get method!
+
+    // You've shadowed the package name! 🙈
+}
+				`}</code></pre>
+
+				<aside className='notes'>
+					<div>
+						This is hilarious - we solved one problem and created another!
+					</div>
+					<div>
+						Go actually lets you shadow package names with variables.
+					</div>
+					<div>
+						I've seen this catch so many people - the compiler just lets it happen!
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>Go Proverb: Variable name length</h2>
+
+				<blockquote style={{ fontSize: '1.4em', marginBottom: '1em' }}>
+					"The bigger the scope, the longer the name"
+					<footer>— Rob Pike</footer>
+				</blockquote>
+
+				<pre><code data-trim data-noescape className='language-golang'>{`
+// Package level - descriptive
+var DefaultHTTPClient = &http.Client{Timeout: 30 * time.Second}
+
+// Struct fields - medium length
+type Handler struct {
+    client *http.Client  // Not "c", not "httpClient"
+    bs     booking.Service    // Abbreviated but clear
+}
+
+// Function body - short
+func (h *Handler) Book(c echo.Context) error {
+    u := user.FromContext(c)        // "u" lives for 10 lines
+    b := h.bs.Create(u, req.Hotel)  // "b" is perfectly clear
+
+    // Loop scope - single letter
+    for i := 0; i < len(items); i++ {  // "i" lives for 3 lines
+        process(items[i])
+    }
+}
+				`}</code></pre>
+
+				<aside className='notes'>
+					<div>
+						This is core Go philosophy - not just a convention, but a proverb!
+					</div>
+					<div>
+						The shorter the lifetime, the shorter the name.
+					</div>
+					<div>
+						This actually helps with our package naming conflict!
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>✨ Where worlds collide: The Handler</h2>
+				<pre><code data-trim data-noescape className='language-golang'>{`
+import (
+    "loveholidays/booking"
+    "loveholidays/payment"
+    "loveholidays/availability"
+    "loveholidays/notification"
+)
+
+type Handler struct {
+    bs booking.Service      // Short but clear
+    ps payment.Service      // No conflicts!
+    as availability.Service
+    ns notification.Service
+}
+
+func (h *Handler) UpdateAccommodation(c echo.Context) error {
+    u := user.FromContext(c)              // Short names for short lives
+    b, err := h.bs.Find(c.Param("id"))
+    if err != nil {
+        return echo.NewHTTPError(404)
+    }
+
+    // Check availability with preferences
+    avail := h.as.Check(b.Hotel, req.Dates, req.RoomType)
+    if !avail {
+        return echo.NewHTTPError(409, "Not available")
+    }
+
+    // Process payment change
+    if diff := h.ps.CalculateDiff(b, req); diff > 0 {
+        if err := h.ps.Charge(u, diff); err != nil {
+            return echo.NewHTTPError(402)
+        }
+    }
+
+    h.ns.SendConfirmation(u, b)
+    return c.JSON(200, b)
+}
+
+// Clean orchestration, no technical layers visible!
+				`}</code></pre>
+
+				<aside className='notes'>
+					<div>
+						This is where all our principles come together!
+					</div>
+					<div>
+						Short service names prevent conflicts, follow Go conventions.
+					</div>
+					<div>
+						The handler just orchestrates - each package owns its complexity.
+					</div>
+					<div>
+						No repos, models, services - just business capabilities.
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>🎁 Inside each package: Your technical choices</h2>
+				<pre><code data-trim data-noescape className='language-golang'>{`
+// booking/service.go - The public interface
+package booking
+
+type Service struct {
+    db     *sql.DB
+    cache  cache.Store
+    events events.Publisher
+}
+
+func (s *Service) Find(id string) (*Booking, error) {
+    // Your technical layers are hidden here!
+    if b := s.cache.Get(id); b != nil {
+        return b, nil
+    }
+
+    b, err := s.repository.fetch(id)  // Private method
+    if err != nil {
+        return nil, err
+    }
+
+    if err := s.validator.check(b); err != nil {  // Private
+        return nil, err
+    }
+
+    s.events.Publish("booking.accessed", b)
+    return b, nil
+}
+
+// The consumer never sees repos, models, validators!
+// They just see: booking.Find() ✨
+				`}</code></pre>
+
+				<aside className='notes'>
+					<div>
+						Inside each package, you can organize however you want!
+					</div>
+					<div>
+						Want repositories? Models? Validators? Go for it!
+					</div>
+					<div>
+						But keep it internal - the package boundary is sacred.
+					</div>
+					<div>
+						This is true encapsulation - technical choices don't leak.
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>🗺️ The Complete Picture</h2>
+				<div style={{ fontSize: '1.1em' }}>
+					<pre><code data-trim data-noescape className='language-golang'>{`
+┌─────────────────────────────────────────────────────┐
+│                   HTTP Request                       │
+└────────────────────┬────────────────────────────────┘
+                     ↓
+┌─────────────────────────────────────────────────────┐
+│   Handler (Orchestration Layer)                     │
+│   import "booking", "payment", "notification"       │
+└────────┬───────────┬───────────┬────────────────────┘
+         ↓           ↓           ↓
+┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+│   booking    │ │   payment    │ │ notification │
+├──────────────┤ ├──────────────┤ ├──────────────┤
+│ Find()       │ │ Charge()     │ │ Send()       │
+│ Update()     │ │ Refund()     │ │ Schedule()   │
+├──────────────┤ ├──────────────┤ ├──────────────┤
+│ (internal)   │ │ (internal)   │ │ (internal)   │
+│ • repository │ │ • gateway    │ │ • templates  │
+│ • validator  │ │ • retry      │ │ • queue      │
+│ • cache      │ │ • audit      │ │ • smtp       │
+└──────────────┘ └──────────────┘ └──────────────┘
+
+Each box is a flat package with hidden internals ✨
+					`}</code></pre>
+				</div>
+
+				<aside className='notes'>
+					<div>
+						This diagram shows our achievement visually.
+					</div>
+					<div>
+						Flat packages at the top level, complexity hidden inside.
+					</div>
+					<div>
+						The handler only sees the clean interfaces.
+					</div>
+					<div>
+						This is sustainable, scalable architecture!
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>The Challenge</h2>
+
+				<div style={{ marginTop: '2em' }}>
+					<blockquote
+						style={{ fontSize: '1.0em', fontWeight: 'bold' }}
+					>
+						"If someone only saw my import list,<br />
+						would they understand what my application does?"
+					</blockquote>
+
+					<p style={{ marginTop: '2em', fontWeight: 'bold' }}>
+						Packages belong to the people who use them.
+					</p>
+				</div>
+
+				<aside className='notes'>
+					<div>
 						This is the one question I want you to take away from
 						this talk.
 					</div>
