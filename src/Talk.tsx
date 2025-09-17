@@ -14,16 +14,26 @@ export const Talk = () => {
 					</div>
 				</div>
 				<aside className='notes'>
-					<div>Thanks X, it's great to be here!</div>
+					<div>1. Thanks X, it's great to be here!</div>
 
 					<div>
-						Sometimes, we developers can get ourselves in a mess.
-						Taking this meme literally, we can sometimes be the
-						delivery driver and the recipient.
+						2. This talk is all about <b>go packages</b>{' '}
+						and how we use them to organise our applications.
 					</div>
 
 					<div>
-						Either way the result is the same, only we end up
+						3. This isn't a talk about how to find your Amazon
+						parcels, I wish I could tell you where to find them!
+					</div>
+
+					<div>
+						4. So on the topic of organising code, we developers can
+						get ourselves in a mess. Taking this meme literally, we
+						can sometimes be the delivery driver and the recipient.
+					</div>
+
+					<div>
+						4. Either way the result is the same, only we end up
 						annoyed with ourselves!
 					</div>
 
@@ -31,6 +41,25 @@ export const Talk = () => {
 						[if not said] This talk is called: return to sender, why
 						your packages always get lost.
 					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>So who am I?</h2>
+				<ul>
+					<li>Hey I'm Mike 👋</li>
+					<li>
+						<div className='with-logo'>
+							Senior Engineer @ <Loveholidays />
+						</div>
+					</li>
+					<li>Also interested in UI/UX</li>
+					<li>Also interested other things</li>
+					<li>It's lovely to meet you all! ❤️</li>
+				</ul>
+
+				<aside className='notes'>
+					..read the bullet points LOL
 				</aside>
 			</section>
 
@@ -57,32 +86,20 @@ export const Talk = () => {
 
 				<aside className='notes'>
 					<div>
-						This talk has opinions, hopefully you'll them to be
+						1. And just before we get right into things..
+					</div>
+					<div>
+						2. This talk has opinions, hopefully you'll them to be
 						useful opinions.
 					</div>
-				</aside>
-			</section>
-
-			<section>
-				<h2>So who am I?</h2>
-				<ul>
-					<li>Hey I'm Mike 👋</li>
-					<li>
-						<div className='with-logo'>
-							Senior Engineer @ <Loveholidays />
-						</div>
-					</li>
-					<li>Also interested in UI/UX</li>
-					<li>Also interested other things</li>
-					<li>It's lovely to meet you all! ❤️</li>
-				</ul>
-				<p className='italic footer'>
-					Yes we are hiring, come talk to me afterwards if you're
-					interested.
-				</p>
-
-				<aside className='notes'>
-					..read the bullet points LOL
+					<div>
+						3. And if you get the urge to re-factor parts of your
+						codebase after this talk, I wish you the very best of
+						luck!
+					</div>
+					<div>
+						4. Anyway, on with the show! Let's get started!
+					</div>
 				</aside>
 			</section>
 
@@ -96,7 +113,7 @@ export const Talk = () => {
 					</p>
 
 					<p>
-						Literally the first line you’ll write will be “package
+						It's literally the first line you’ll write -- “package
 						main” before you even get to your hello world.
 					</p>
 
@@ -110,34 +127,34 @@ export const Talk = () => {
 				<img className='stretch' src='assets/kick-contest.jpg' />
 				<div>Have you mastered the basics?</div>
 				<aside className='notes'>
-					<p>Yes and no. Let me tell you a quick story.</p>
+					<p>
+						1. I think it's one of those things that is easy to get
+						started but difficult to master
+					</p>
 
 					<p>
-						I used to play rugby a few years ago, and more often
-						than not we’d miss opportunities, we wouldn’t gel.
+						2. I found the same thing playing rugby a few years back
 					</p>
 
 					<div>
-						We had some great players, we were the bottom division
-						of our club not because we lacked talent.. We just
-						didn’t have the time.. or inclination to do regular
-						practice.
+						3. We'd start off rough, missing plays, getting run
+						around
 					</div>
 
 					<div>
-						Anyway we practically give away a couple of tries and
-						the old dog pulls us in, he gave the same pep talk every
-						game.
+						4. Our skipper would bring us in and give the same talk
+						each game:
 					</div>
 
 					<div>
-						“It’s all about the simple basics of Rugby lads, throw
-						well, hands out and catch the ball, keep a strong line”
+						5. “It’s all about the simple basics of Rugby lads,
+						throw well, hands out and catch the ball, keep a strong
+						line”
 					</div>
 
 					<div>
-						That was all it took, invariably the game would pick up,
-						we didn’t do anything special. We just played a good
+						6. That was all it took, invariably the game would pick
+						up, we didn’t do anything special. We just played a good
 						game and kept at those simple basics of Rugby.
 					</div>
 				</aside>
@@ -154,7 +171,7 @@ export const Talk = () => {
 				<ul>
 					<li>
 						<div className='with-logo'>
-							Started a new service at <Loveholidays />
+							Started a new go service.
 						</div>
 					</li>
 					<li>
@@ -167,9 +184,10 @@ export const Talk = () => {
 					</li>
 				</ul>
 				<aside className='notes'>
+					<p>So why am I telling you this?</p>
 					<div>
-						Apparently off the field I play just same at the
-						keyboard.
+						Apparently it's because off the field I play just same
+						at the keyboard.
 					</div>
 					<div>
 						Read the slides...
@@ -178,7 +196,7 @@ export const Talk = () => {
 			</section>
 
 			<section>
-				<h2>What does this look like?</h2>
+				<h2>What did we try first?</h2>
 				<pre><code data-trim data-noescape className='language-golang'>{`
 import (
     "holiday-service/model" // okay, nice separation of concerns..
@@ -192,13 +210,6 @@ import (
 // but what does this app even DO?
 				`}</code></pre>
 				<aside className='notes'>
-					<div>This is a bad coding pass, why?</div>
-
-					<div>
-						For the consumer, the person catching the ball - they
-						have to get into a weird position to receive your code.
-					</div>
-
 					<div>
 						It's organised by technical layers (models, handlers,
 						services) but that doesn't help someone understand what
@@ -208,7 +219,7 @@ import (
 			</section>
 
 			<section>
-				<h2>This gets worse as we sub-package</h2>
+				<h2>This got worse as we sub-packaged</h2>
 
 				<pre><code data-trim data-noescape className='language-golang'>{`
 import (
@@ -288,11 +299,14 @@ func SetupRoutes() {
 				<blockquote>
 					"The bigger the interface, the weaker the abstraction"<br />
 					"Interfaces belong in the package that uses them"
+					<cite>
+						Rob Pike / Tony Hoare (CSP)
+					</cite>
 				</blockquote>
 
-				<div>
+				<h5>
 					Packages are just another type of interface
-				</div>
+				</h5>
 
 				<aside className='notes'>
 					<div>
@@ -345,7 +359,6 @@ func SetupRoutes() {
 			</section>
 
 			<section>
-				<h2>Bus factor</h2>
 				<img className='stretch' src='assets/legacy-code.jpg' />
 
 				<aside className='notes'>
@@ -367,7 +380,7 @@ func SetupRoutes() {
 			</section>
 
 			<section>
-				<h2>Using _test packages</h2>
+				<h2>Force use of the public interface</h2>
 
 				<pre><code data-trim data-noescape className='language-golang'>{`
 package payment_test // NOT package payment
@@ -859,13 +872,16 @@ func ProcessBooking(id string) error {
 
 				<aside className='notes'>
 					<div>
-						This is hilarious - we solved one problem and created another!
+						This is hilarious - we solved one problem and created
+						another!
 					</div>
 					<div>
-						Go actually lets you shadow package names with variables.
+						Go actually lets you shadow package names with
+						variables.
 					</div>
 					<div>
-						I've seen this catch so many people - the compiler just lets it happen!
+						I've seen this catch so many people - the compiler just
+						lets it happen!
 					</div>
 				</aside>
 			</section>
@@ -902,7 +918,8 @@ func (h *Handler) Book(c echo.Context) error {
 
 				<aside className='notes'>
 					<div>
-						This is core Go philosophy - not just a convention, but a proverb!
+						This is core Go philosophy - not just a convention, but
+						a proverb!
 					</div>
 					<div>
 						The shorter the lifetime, the shorter the name.
@@ -962,10 +979,12 @@ func (h *Handler) UpdateAccommodation(c echo.Context) error {
 						This is where all our principles come together!
 					</div>
 					<div>
-						Short service names prevent conflicts, follow Go conventions.
+						Short service names prevent conflicts, follow Go
+						conventions.
 					</div>
 					<div>
-						The handler just orchestrates - each package owns its complexity.
+						The handler just orchestrates - each package owns its
+						complexity.
 					</div>
 					<div>
 						No repos, models, services - just business capabilities.
@@ -1019,7 +1038,8 @@ func (s *Service) Find(id string) (*Booking, error) {
 						But keep it internal - the package boundary is sacred.
 					</div>
 					<div>
-						This is true encapsulation - technical choices don't leak.
+						This is true encapsulation - technical choices don't
+						leak.
 					</div>
 				</aside>
 			</section>
@@ -1058,7 +1078,8 @@ Each box is a flat package with hidden internals ✨
 						This diagram shows our achievement visually.
 					</div>
 					<div>
-						Flat packages at the top level, complexity hidden inside.
+						Flat packages at the top level, complexity hidden
+						inside.
 					</div>
 					<div>
 						The handler only sees the clean interfaces.

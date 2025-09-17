@@ -43,7 +43,7 @@
 
 	h2 {
 		font-weight: 800;
-		font-size: var(--16);
+		font-size: var(--12);
 		line-height: 1;
 	}
 
@@ -53,7 +53,17 @@
 	}
 
 	blockquote {
-		font-size: var(--8);
+		margin: var(--12) auto;
+		font-size: var(--6);
+		cite {
+			display: block;
+			margin-top: var(--4);
+			margin-right: var(--4);
+			color: var(--off-text);
+			font-style: italic;
+			font-size: var(--4);
+			text-align: right;
+		}
 	}
 
 	ul {
