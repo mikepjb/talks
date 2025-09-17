@@ -1,3 +1,20 @@
+final example
+
+- bringing in neat packages i.e
+  booking/payment/availability/notification (good)
+- when assigning interfaces to the handler, we can't re-use the
+  names we had so carefully chosen.
+- solution A - we can use short names on the handler.. but then
+  the action code becomes less readable again h.bs.Find() for
+  calling Find() from the booking package on a handler
+- solution B - instead of having handlers with services baked in,
+  do like context:
+    - UpdateAccomodation(ctx context.Context, services ?)
+    - really the same thing except you have to pass the services
+      in each time.
+
+---
+
 started @ 14:12
 
 shorter story in the middle

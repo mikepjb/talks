@@ -394,7 +394,16 @@ func SetupRoutes() {
 			</section>
 
 			<section>
-				<h2>How can we improve?</h2>
+				<h2>
+					<span className='italic'>How</span> can we improve?
+				</h2>
+				<aside className='notes'>
+					<div>
+						I came up with a few ideas of things to focus on that
+						would help solve this particular problem of dealing with
+						package interfaces.
+					</div>
+				</aside>
 			</section>
 
 			<section>
@@ -560,15 +569,15 @@ import "user"
 
 				<pre><code data-trim data-noescape className='language-golang'>{`
 import (
-    "net"                // Base networking primitives
+    "net"               // Base networking primitives
     "net/http"          // HTTP protocol built on net
     "net/http/pprof"    // Profiling tools via HTTP
 )
 
 // Usage flows naturally:
-listener, err := net.Listen("tcp", ":8080")  // Base networking
+listener, err := net.Listen("tcp", ":8080") // Base networking
 server := &http.Server{Handler: mux}        // HTTP layer
-_ = pprof.Handler("goroutine")               // Profiling via HTTP
+_ = pprof.Handler("goroutine")              // Profiling via HTTP
 
 // Each layer builds on the previous
 // Progressive specialization, not artificial splitting
@@ -607,7 +616,6 @@ _ = pprof.Handler("goroutine")               // Profiling via HTTP
 │   ├── client.go # contains the http.Client we know and love <3
 │   ├── clientserver_test.go
 │   ├── client_test.go
-│   ├── clone.go
 │   ├── cookie.go # contains http.Cookie
 						`}</code></pre>
 
@@ -626,7 +634,7 @@ _ = pprof.Handler("goroutine")               // Profiling via HTTP
 
 				<pre><code data-trim data-noescape className='language-golang'>{`
 import (
-    "database/sql"        // Generic database interface
+    "database/sql"           // Generic database interface
     // "database/sql/driver" // Hidden! Driver implementation contract
                              // (consumers don't need this)
 
@@ -748,101 +756,11 @@ enc.WriteToken(jsontext.ObjectEnd)
 
 			<section>
 				<h2>Putting this together</h2>
-
-				<div style={{ display: 'flex', gap: '20px' }}>
-					<div style={{ flex: 1 }}>
-						<h4>Before</h4>
-						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.75em' }}>{`
-import (
-    "holiday-service/handler"
-    "holiday-service/model"
-    "holiday-service/service"
-    "holiday-service/repository"
-    "holiday-service/validator"
-)
-
-func BookHoliday(w http.ResponseWriter, r *http.Request) {
-    // Multiple imports needed for simple task
-    userRepo := repository.NewUser()
-    bookingRepo := repository.NewBooking()
-    paymentSvc := service.NewPayment()
-
-    validator := validator.New()
-
-    // Code scattered across technical layers
-    user, _ := userRepo.FindByID(userID)
-    booking := model.Booking{UserID: user.ID, ...}
-
-    if err := validator.ValidateBooking(booking); err != nil {
-        handler.Error(w, err)
-        return
-    }
-
-    bookingRepo.Save(booking)
-    paymentSvc.Process(booking.Total)
-}
-						`}</code></pre>
-					</div>
-					<div style={{ flex: 1 }}>
-						<h4>After</h4>
-						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.75em' }}>{`
-import (
-    "holiday-service/user"
-    "holiday-service/booking"
-    "holiday-service/payment"
-)
-
-func BookHoliday(w http.ResponseWriter, r *http.Request) {
-    // Business domain is immediately clear
-    currentUser, err := user.FromContext(r.Context())
-    if err != nil {
-        http.Error(w, "unauthorized", 401)
-        return
-    }
-
-    // Natural workflow follows business process
-    reservation, err := booking.Create(currentUser.ID, hotelID, dates)
-    if err != nil {
-        http.Error(w, err.Error(), 400)
-        return
-    }
-
-    // Payment naturally follows booking
-    err = payment.Charge(currentUser, reservation.Total())
-    if err != nil {
-        booking.Cancel(reservation.ID)
-        http.Error(w, "payment failed", 400)
-        return
-    }
-
-    json.NewEncoder(w).Encode(reservation)
-}
-						`}</code></pre>
-					</div>
-				</div>
-
-				<aside className='notes'>
-					<div>
-						Look how the same function transforms when packages are
-						designed for consumption.
-					</div>
-					<div>
-						The "after" code reads like a business requirement: get
-						the user, make a booking, charge payment.
-					</div>
-					<div>
-						This is what good package design enables - code that
-						tells the story of your domain.
-					</div>
-				</aside>
-			</section>
-
-			<section>
-				<h2>⚠️ We slipped up on the flat!</h2>
+				<h5>⚠️ We slipped up on the flat!</h5>
 				<pre><code data-trim data-noescape className='language-golang'>{`
 import (
-    "loveholidays/booking"
-    "loveholidays/payment"
+    "holiday-service/booking"
+    "holiday-service/payment"
 )
 
 func ProcessBooking(id string) error {
@@ -881,10 +799,10 @@ func ProcessBooking(id string) error {
 				<h2>✨ Where worlds collide: The Handler</h2>
 				<pre><code data-trim data-noescape className='language-golang'>{`
 import (
-    "loveholidays/booking"
-    "loveholidays/payment"
-    "loveholidays/availability"
-    "loveholidays/notification"
+    "holiday-service/booking"
+    "holiday-service/payment"
+    "holiday-service/availability"
+    "holiday-service/notification"
 )
 
 type Handler struct {
