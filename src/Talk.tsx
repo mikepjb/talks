@@ -362,23 +362,6 @@ func SetupRoutes() {
 			</section>
 
 			<section>
-				<img className='stretch' src='assets/legacy-code.jpg' />
-
-				<aside className='notes'>
-					<div>
-						We don't always feel this in the code we write, until
-						you onboard someone new to your team and have to explain
-						it.
-					</div>
-
-					<div>
-						AI agents are included here, you'll have to explain the
-						context to them too if you want quality results.
-					</div>
-				</aside>
-			</section>
-
-			<section>
 				<h2>What are the simple basics of packaging?</h2>
 				<img
 					src='assets/deeper.jpg'
@@ -756,6 +739,13 @@ import "user"
 				</blockquote>
 
 				<aside className='notes'>
+					<div>
+						So this is what I learned about packages, getting a bit
+						closer to mastering the basics
+					</div>
+					<div>
+						So in summary..
+					</div>
 					<div>
 						These are the key takeaways you can apply tomorrow.
 					</div>
