@@ -27,17 +27,6 @@ export const Talk = () => {
 					</div>
 
 					<div>
-						4. So on the topic of organising code, we developers can
-						get ourselves in a mess. Taking this meme literally, we
-						can sometimes be the delivery driver and the recipient.
-					</div>
-
-					<div>
-						4. Either way the result is the same, only we end up
-						annoyed with ourselves!
-					</div>
-
-					<div>
 						[if not said] This talk is called: return to sender, why
 						your packages always get lost.
 					</div>
