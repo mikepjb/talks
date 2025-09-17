@@ -188,3 +188,15 @@
 .st5 {
 	fill: #ffffff;
 }
+
+/* Complete Picture diagram overrides */
+.complete-picture pre {
+	height: auto !important;
+	max-height: none !important;
+	overflow: visible !important;
+}
+
+.complete-picture code {
+	height: auto !important;
+	max-height: none !important;
+}

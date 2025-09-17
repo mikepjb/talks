@@ -324,10 +324,28 @@ func SetupRoutes() {
 			<section>
 				<h2>Can you apply the same principle?</h2>
 
-				<div style={{ display: 'flex', alignItems: 'center' }}>
-					<div>
-						Your code should reflect how users think about the
-						domain. This is your consumer interface.
+				<div
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						gap: '3rem',
+					}}
+				>
+					<div
+						style={{
+							textAlign: 'left',
+							fontSize: '0.5em',
+							maxWidth: '25rem',
+						}}
+					>
+						<div>
+							Where do interface declarations for packages belong?
+						</div>
+						<div style={{ marginTop: '2rem' }}>
+							Your code should reflect how users think about the
+							domain. This is your consumer interface.
+						</div>
 					</div>
 					<img
 						className='stretch'
@@ -729,31 +747,6 @@ enc.WriteToken(jsontext.ObjectEnd)
 			</section>
 
 			<section>
-				<h2>In Summary</h2>
-
-				<ul>
-					<li>flat packages == friendly packages</li>
-					<li>_test packages test drive the package interface</li>
-					<li>think about the developer who will use your package</li>
-				</ul>
-
-				<blockquote>
-					"If somebody imported this package,<br />
-					how would they try to use it?"
-				</blockquote>
-
-				<aside className='notes'>
-					<div>
-						These are the key takeaways you can apply tomorrow.
-					</div>
-					<div>
-						Start with flat packages, use _test to validate your
-						API, and always think about the import story.
-					</div>
-				</aside>
-			</section>
-
-			<section>
 				<h2>Putting this together</h2>
 
 				<div style={{ display: 'flex', gap: '20px' }}>
@@ -885,50 +878,6 @@ func ProcessBooking(id string) error {
 			</section>
 
 			<section>
-				<h2>Go Proverb: Variable name length</h2>
-
-				<blockquote style={{ fontSize: '1.4em', marginBottom: '1em' }}>
-					"The bigger the scope, the longer the name"
-					<footer>— Rob Pike</footer>
-				</blockquote>
-
-				<pre><code data-trim data-noescape className='language-golang'>{`
-// Package level - descriptive
-var DefaultHTTPClient = &http.Client{Timeout: 30 * time.Second}
-
-// Struct fields - medium length
-type Handler struct {
-    client *http.Client  // Not "c", not "httpClient"
-    bs     booking.Service    // Abbreviated but clear
-}
-
-// Function body - short
-func (h *Handler) Book(c echo.Context) error {
-    u := user.FromContext(c)        // "u" lives for 10 lines
-    b := h.bs.Create(u, req.Hotel)  // "b" is perfectly clear
-
-    // Loop scope - single letter
-    for i := 0; i < len(items); i++ {  // "i" lives for 3 lines
-        process(items[i])
-    }
-}
-				`}</code></pre>
-
-				<aside className='notes'>
-					<div>
-						This is core Go philosophy - not just a convention, but
-						a proverb!
-					</div>
-					<div>
-						The shorter the lifetime, the shorter the name.
-					</div>
-					<div>
-						This actually helps with our package naming conflict!
-					</div>
-				</aside>
-			</section>
-
-			<section>
 				<h2>✨ Where worlds collide: The Handler</h2>
 				<pre><code data-trim data-noescape className='language-golang'>{`
 import (
@@ -1044,29 +993,38 @@ func (s *Service) Find(id string) (*Booking, error) {
 
 			<section>
 				<h2>🗺️ The Complete Picture</h2>
-				<div style={{ fontSize: '0.9em', height: '70vh' }}>
-					<pre style={{ height: '100%', overflow: 'hidden' }}><code data-trim data-noescape className='language-golang'>{`
-┌─────────────┐     ┌─────────────────────────────┐
-│HTTP Request │ ──▶ │   Handler (Orchestration)   │
-└─────────────┘     │import "booking", "payment", │
-                    │       "notification"        │
-                    └─────────────┬───────────────┘
-                                  │
-                    ┌─────────────┼─────────────┐
-                    ▼             ▼             ▼
-               ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-               │   booking    │ │   payment    │ │ notification │
-               ├──────────────┤ ├──────────────┤ ├──────────────┤
-               │ Find()       │ │ Charge()     │ │ Send()       │
-               │ Update()     │ │ Refund()     │ │ Schedule()   │
-               ├──────────────┤ ├──────────────┤ ├──────────────┤
-               │ (internal)   │ │ (internal)   │ │ (internal)   │
-               │ • repository │ │ • gateway    │ │ • templates  │
-               │ • validator  │ │ • retry      │ │ • queue      │
-               │ • cache      │ │ • audit      │ │ • smtp       │
-               └──────────────┘ └──────────────┘ └──────────────┘
+				<div
+					className='complete-picture'
+					style={{ fontSize: '0.9em', height: 'fit-content' }}
+				>
+					<pre
+						style={{
+							height: 'auto',
+							maxHeight: 'none !important',
+							overflow: 'visible',
+						}}
+					><code style={{ height: 'auto', maxHeight: 'none !important' }} data-trim data-noescape className='language-golang'>{`
+     ┌─────────────┐      ┌─────────────────────────────┐
+     │HTTP Request │ ──▶ │   Handler (Orchestration)   │
+     └─────────────┘      │import "booking", "payment", │
+                          │       "notification"        │
+                          └─────────────┬───────────────┘
+                                        │
+                          ┌─────────────┼─────────────┐
+                          ▼             ▼             ▼
+                 ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+                 │   booking    │ │   payment    │ │ notification │
+                 ├──────────────┤ ├──────────────┤ ├──────────────┤
+                 │ Find()       │ │ Charge()     │ │ Send()       │
+                 │ Update()     │ │ Refund()     │ │ Schedule()   │
+                 ├──────────────┤ ├──────────────┤ ├──────────────┤
+                 │ (internal)   │ │ (internal)   │ │ (internal)   │
+                 │ • repository │ │ • gateway    │ │ • templates  │
+                 │ • validator  │ │ • retry      │ │ • queue      │
+                 │ • cache      │ │ • audit      │ │ • smtp       │
+                 └──────────────┘ └──────────────┘ └──────────────┘
 
-Each box is a flat package with hidden internals ✨
+     Each box is a flat package with hidden internals ✨
 					`}</code></pre>
 				</div>
 
@@ -1088,44 +1046,26 @@ Each box is a flat package with hidden internals ✨
 			</section>
 
 			<section>
-				<h2>The Challenge</h2>
+				<h2>In Summary</h2>
 
-				<div style={{ marginTop: '2em' }}>
-					<blockquote
-						style={{ fontSize: '1.0em', fontWeight: 'bold' }}
-					>
-						"If someone only saw my import list,<br />
-						would they understand what my application does?"
-					</blockquote>
+				<ul>
+					<li>Flat packages == friendly packages</li>
+					<li>Force use of the public interface with _test</li>
+					<li>think about the developer who will use your package</li>
+				</ul>
 
-					<p style={{ marginTop: '2em', fontWeight: 'bold' }}>
-						Packages belong to the people who use them.
-					</p>
-				</div>
+				<blockquote>
+					"If somebody imported this package,<br />
+					how would they try to use it?"
+				</blockquote>
 
 				<aside className='notes'>
 					<div>
-						This is the one question I want you to take away from
-						this talk.
+						These are the key takeaways you can apply tomorrow.
 					</div>
 					<div>
-						Your project structure should be living documentation of
-						your system architecture.
-					</div>
-					<div>
-						Just like we write interfaces in the consuming package,
-						we should structure packages to match how people already
-						think about the system - the business logic they have in
-						their heads.
-					</div>
-					<div>
-						When someone says "to create a booking, you need a valid
-						payment" - that's exactly how your packages should be
-						organized. The code should read like the business
-						requirements.
-					</div>
-					<div>
-						If it doesn't tell a clear story, it's time to refactor.
+						Start with flat packages, use _test to validate your
+						API, and always think about the import story.
 					</div>
 				</aside>
 			</section>
