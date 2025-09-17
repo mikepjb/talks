@@ -394,152 +394,6 @@ func SetupRoutes() {
 			</section>
 
 			<section>
-				<h2>
-					<span className='italic'>How</span> can we improve?
-				</h2>
-				<aside className='notes'>
-					<div>
-						I came up with a few ideas of things to focus on that
-						would help solve this particular problem of dealing with
-						package interfaces.
-					</div>
-				</aside>
-			</section>
-
-			<section>
-				<h2>Force use of the public interface</h2>
-
-				<pre><code data-trim data-noescape className='language-golang'>{`
-package payment_test // NOT package payment
-
-import (
-    "testing"
-    "holiday-service/payment" // Import like a consumer!
-)
-
-func TestAuthorisation(t *testing.T) {
-    result := payment.Authorise(100, payment.Card{...})
-
-    if !result.IsSuccess() { // Can I get what I need?
-        t.Errorf("failed: %s", result.Error())
-    }
-}
-						`}</code></pre>
-
-				<aside className='notes'>
-					<div>
-						Using _test packages forces you to consume your own
-						package exactly like your users will.
-					</div>
-
-					<div>
-						You immediately feel the pain of a bad API because you
-						can't cheat and access internals.
-					</div>
-
-					<div>
-						If testing is painful, using your package will be
-						painful. Fix it now, not after someone complains.. you
-						may or may not also be the person that complains!
-					</div>
-				</aside>
-			</section>
-
-			<section>
-				<h2>Flat packages are friendly packages</h2>
-
-				<img className='stretch' src='assets/normal-distribution.jpg' />
-
-				<aside className='notes'>
-					<div>
-						[pause so people can enjoy the meme]
-					</div>
-					<div>
-						Isolation can hide coupling by allowing dependencies
-						between domains at different levels
-					</div>
-				</aside>
-			</section>
-
-			<section>
-				<h2>Hidden benefit: compiler checks!</h2>
-
-				<div style={{ display: 'flex', gap: '20px' }}>
-					<div style={{ flex: 1 }}>
-						<h5>Sub-packages hide coupling</h5>
-						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
-// user/handler.go
-import (
-    "booking/model"
-    "user/model"
-)
-						`}</code></pre>
-						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
-// booking/handler.go
-import (
-    "user/repository"
-    "booking/model"
-)
-// No cyclic import! 🙈
-// But spaghetti code...
-// Then it's too late...
-						`}</code></pre>
-					</div>
-					<div style={{ flex: 1 }}>
-						<h5>Flat packages prevent this</h5>
-						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
-// user/user.go
-import "booking"
-						`}</code></pre>
-						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
-// booking/booking.go
-import "user"
-
-// Compiler error! 💥
-// Forces design fix early
-						`}</code></pre>
-					</div>
-				</div>
-
-				<aside className='notes'>
-					<div>
-						This is the hidden danger of sub-packaging - it can mask
-						coupling by allowing cross-dependencies at different
-						layers.
-					</div>
-					<div>
-						Flat packages force you to confront coupling issues
-						early, when they're easier to fix.
-					</div>
-					<div>
-						The compiler becomes your friend, stopping you from
-						creating spaghetti before it's too late.
-					</div>
-				</aside>
-			</section>
-
-			<section>
-				<h2>What's in the folder?</h2>
-
-				<pre><code data-trim data-noescape className='code language-bash'>{`
-├── order # high-level, a user account has orders
-│   ├── model.go # still separate concerns by MVC if you want internally
-│   ├── model_test.go
-│   ├── postgres.go # could be repository.go but when do you change dbs?
-│   ├── postgres_test.go
-│   ├── pricing.go # hidden implementation detail, split how you like!
-│   ├── pricing_test.go
-│   └── voucher_test.go
-						`}</code></pre>
-
-				<aside className='notes'>
-					<div>
-						something
-					</div>
-				</aside>
-			</section>
-
-			<section>
 				<h2>What are the simple basics of packaging?</h2>
 				<img
 					src='assets/deeper.jpg'
@@ -755,204 +609,147 @@ enc.WriteToken(jsontext.ObjectEnd)
 			</section>
 
 			<section>
-				<h2>Putting this together</h2>
-				<h5>⚠️ We slipped up on the flat!</h5>
+				<h2>
+					<span className='italic'>How</span> can we improve?
+				</h2>
+				<aside className='notes'>
+					<div>
+						I came up with a few ideas of things to focus on that
+						would help solve this particular problem of dealing with
+						package interfaces.
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>Force use of the public interface</h2>
+
 				<pre><code data-trim data-noescape className='language-golang'>{`
+package payment_test // NOT package payment
+
 import (
-    "holiday-service/booking"
-    "holiday-service/payment"
+    "testing"
+    "holiday-service/payment" // Import like a consumer!
 )
 
-func ProcessBooking(id string) error {
-    // This seems innocent enough...
-    booking := booking.Find(id)  // 💥 Wait, what?
+func TestAuthorisation(t *testing.T) {
+    result := payment.Authorise(100, payment.Card{...})
 
-    // Later in the same function:
-    another := booking.Booking{}  // ❌ Compiler error!
-    // "booking" is now a variable, not a package!
+    if !result.IsSuccess() { // Can I get what I need?
+        t.Errorf("failed: %s", result.Error())
+    }
 }
-				`}</code></pre>
+						`}</code></pre>
 
 				<aside className='notes'>
 					<div>
-						This is hilarious - we solved one problem and created
-						another!
+						Using _test packages forces you to consume your own
+						package exactly like your users will.
 					</div>
+
 					<div>
-						Go actually lets you shadow package names with
-						variables.
+						You immediately feel the pain of a bad API because you
+						can't cheat and access internals.
 					</div>
+
 					<div>
-						I've seen this catch so many people - the compiler just
-						lets it happen!
+						If testing is painful, using your package will be
+						painful. Fix it now, not after someone complains.. you
+						may or may not also be the person that complains!
 					</div>
 				</aside>
 			</section>
 
 			<section>
-				<h2>✨ Where worlds collide: The Handler</h2>
-				<pre><code data-trim data-noescape className='language-golang'>{`
+				<h2>Flat packages are friendly packages</h2>
+
+				<img className='stretch' src='assets/normal-distribution.jpg' />
+
+				<aside className='notes'>
+					<div>
+						[pause so people can enjoy the meme]
+					</div>
+					<div>
+						Isolation can hide coupling by allowing dependencies
+						between domains at different levels
+					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>Hidden benefit: compiler checks!</h2>
+
+				<div style={{ display: 'flex', gap: '20px' }}>
+					<div style={{ flex: 1 }}>
+						<h5>Sub-packages hide coupling</h5>
+						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
+// user/handler.go
 import (
-    "holiday-service/booking"
-    "holiday-service/payment"
-    "holiday-service/availability"
-    "holiday-service/notification"
+    "booking/model"
+    "user/model"
 )
-
-type Handler struct {
-    bs booking.Service      // Short but clear
-    ps payment.Service      // No conflicts!
-    as availability.Service
-    ns notification.Service
-}
-
-func (h *Handler) UpdateAccommodation(c echo.Context) error {
-    u := user.FromContext(c)              // Short names for short lives
-    b, err := h.bs.Find(c.Param("id"))
-    if err != nil {
-        return echo.NewHTTPError(404)
-    }
-
-    // Check availability with preferences
-    avail := h.as.Check(b.Hotel, req.Dates, req.RoomType)
-    if !avail {
-        return echo.NewHTTPError(409, "Not available")
-    }
-
-    // Process payment change
-    if diff := h.ps.CalculateDiff(b, req); diff > 0 {
-        if err := h.ps.Charge(u, diff); err != nil {
-            return echo.NewHTTPError(402)
-        }
-    }
-
-    h.ns.SendConfirmation(u, b)
-    return c.JSON(200, b)
-}
-
-// Clean orchestration, no technical layers visible!
-				`}</code></pre>
-
-				<aside className='notes'>
-					<div>
-						This is where all our principles come together!
+						`}</code></pre>
+						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
+// booking/handler.go
+import (
+    "user/repository"
+    "booking/model"
+)
+// No cyclic import! 🙈
+// But spaghetti code...
+// Then it's too late...
+						`}</code></pre>
 					</div>
-					<div>
-						Short service names prevent conflicts, follow Go
-						conventions.
+					<div style={{ flex: 1 }}>
+						<h5>Flat packages prevent this</h5>
+						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
+// user/user.go
+import "booking"
+						`}</code></pre>
+						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
+// booking/booking.go
+import "user"
+
+// Compiler error: cyclic import! 💥
+// Forces design fix early
+						`}</code></pre>
 					</div>
-					<div>
-						The handler just orchestrates - each package owns its
-						complexity.
-					</div>
-					<div>
-						No repos, models, services - just business capabilities.
-					</div>
-				</aside>
-			</section>
-
-			<section>
-				<h2>🎁 Inside each package: Your technical choices</h2>
-				<pre><code data-trim data-noescape className='language-golang'>{`
-// booking/service.go - The public interface
-package booking
-
-type Service struct {
-    db     *sql.DB
-    cache  cache.Store
-    events events.Publisher
-}
-
-func (s *Service) Find(id string) (*Booking, error) {
-    // Your technical layers are hidden here!
-    if b := s.cache.Get(id); b != nil {
-        return b, nil
-    }
-
-    b, err := s.repository.fetch(id)  // Private method
-    if err != nil {
-        return nil, err
-    }
-
-    if err := s.validator.check(b); err != nil {  // Private
-        return nil, err
-    }
-
-    s.events.Publish("booking.accessed", b)
-    return b, nil
-}
-
-// The consumer never sees repos, models, validators!
-// They just see: booking.Find() ✨
-				`}</code></pre>
-
-				<aside className='notes'>
-					<div>
-						Inside each package, you can organize however you want!
-					</div>
-					<div>
-						Want repositories? Models? Validators? Go for it!
-					</div>
-					<div>
-						But keep it internal - the package boundary is sacred.
-					</div>
-					<div>
-						This is true encapsulation - technical choices don't
-						leak.
-					</div>
-				</aside>
-			</section>
-
-			<section>
-				<h2>🗺️ The Complete Picture</h2>
-				<div
-					className='complete-picture'
-					style={{ fontSize: '0.9em', height: 'fit-content' }}
-				>
-					<pre
-						style={{
-							height: 'auto',
-							maxHeight: 'none !important',
-							overflow: 'visible',
-						}}
-					><code style={{ height: 'auto', maxHeight: 'none !important' }} data-trim data-noescape className='language-golang'>{`
-     ┌─────────────┐      ┌─────────────────────────────┐
-     │HTTP Request │ ──▶ │   Handler (Orchestration)   │
-     └─────────────┘      │import "booking", "payment", │
-                          │       "notification"        │
-                          └─────────────┬───────────────┘
-                                        │
-                          ┌─────────────┼─────────────┐
-                          ▼             ▼             ▼
-                 ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-                 │   booking    │ │   payment    │ │ notification │
-                 ├──────────────┤ ├──────────────┤ ├──────────────┤
-                 │ Find()       │ │ Charge()     │ │ Send()       │
-                 │ Update()     │ │ Refund()     │ │ Schedule()   │
-                 ├──────────────┤ ├──────────────┤ ├──────────────┤
-                 │ (internal)   │ │ (internal)   │ │ (internal)   │
-                 │ • repository │ │ • gateway    │ │ • templates  │
-                 │ • validator  │ │ • retry      │ │ • queue      │
-                 │ • cache      │ │ • audit      │ │ • smtp       │
-                 └──────────────┘ └──────────────┘ └──────────────┘
-
-     Each box is a flat package with hidden internals ✨
-					`}</code></pre>
 				</div>
 
 				<aside className='notes'>
 					<div>
-						This diagram shows our achievement visually.
+						This is the hidden danger of sub-packaging - it can mask
+						coupling by allowing cross-dependencies at different
+						layers.
 					</div>
 					<div>
-						Flat packages at the top level, complexity hidden
-						inside.
+						Flat packages force you to confront coupling issues
+						early, when they're easier to fix.
 					</div>
 					<div>
-						The handler only sees the clean interfaces.
+						The compiler becomes your friend, stopping you from
+						creating spaghetti before it's too late.
 					</div>
+				</aside>
+			</section>
+
+			<section>
+				<h2>What's in the folder?</h2>
+
+				<pre><code data-trim data-noescape className='code language-bash'>{`
+├── order # high-level, a user account has orders
+│   ├── model.go # still separate concerns by MVC if you want internally
+│   ├── model_test.go
+│   ├── postgres.go # could be repository.go but when do you change dbs?
+│   ├── postgres_test.go
+│   ├── pricing.go # hidden implementation detail, split how you like!
+│   ├── pricing_test.go
+│   └── voucher_test.go
+						`}</code></pre>
+
+				<aside className='notes'>
 					<div>
-						This is sustainable, scalable architecture!
+						something
 					</div>
 				</aside>
 			</section>
@@ -963,7 +760,7 @@ func (s *Service) Find(id string) (*Booking, error) {
 				<ul>
 					<li>Flat packages == friendly packages</li>
 					<li>Force use of the public interface with _test</li>
-					<li>think about the developer who will use your package</li>
+					<li>Think about the developer who will use your package</li>
 				</ul>
 
 				<blockquote>
