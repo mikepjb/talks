@@ -222,17 +222,17 @@ import (
 				<h2>This got worse as we sub-packaged</h2>
 
 				<pre><code data-trim data-noescape className='language-golang'>{`
-import (
-    userModel "holiday-service/user/model"
+import ( // lots of aliasing required! lots of models and handlers
+    userModel "holiday-service/user/model" // model 1
     userHandler "holiday-service/user/handler"
-    bookingModel "holiday-service/booking/model"
+    bookingModel "holiday-service/booking/model" // model 2
     bookingHandler "holiday-service/booking/handler"
-    paymentModel "holiday-service/payment/model"
+    paymentModel "holiday-service/payment/model" // model 3
     paymentHandler "holiday-service/payment/handler"
 )
 
 func SetupRoutes() {
-    user := userModel.User{}         // Verbose aliasing required
+    user := userModel.User{}          // Verbose aliasing required
     booking := bookingModel.Booking{} // Coding gymnastics!
     payment := paymentModel.Payment{} // Just to import cleanly
 }
@@ -260,13 +260,13 @@ func SetupRoutes() {
 				<h2>Can you invert it?</h2>
 
 				<pre><code data-trim data-noescape className='language-golang'>{`
-import (
+import ( // still lots of aliasing required!
     userModel "holiday-service/model/user"
-    userHandler "holiday-service/handler/user"
+    userHandler "holiday-service/handler/user" // 2nd user package
     bookingModel "holiday-service/model/booking"
-    bookingHandler "holiday-service/handler/booking"
+    bookingHandler "holiday-service/handler/booking" // 2nd booking package
     paymentModel "holiday-service/model/payment"
-    paymentHandler "holiday-service/handler/payment"
+    paymentHandler "holiday-service/handler/payment" // 2nd payment package
 )
 
 func SetupRoutes() {
@@ -770,12 +770,6 @@ func ProcessBooking(id string) error {
     // Later in the same function:
     another := booking.Booking{}  // ❌ Compiler error!
     // "booking" is now a variable, not a package!
-
-    // Even funnier with http:
-    http := &http.Client{}
-    resp := http.Get("...")  // ❌ Client has no Get method!
-
-    // You've shadowed the package name! 🙈
 }
 				`}</code></pre>
 
