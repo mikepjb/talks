@@ -419,8 +419,7 @@ func TestAuthorisation(t *testing.T) {
 			</section>
 
 			<section>
-				<h2>Flat packages are</h2>
-				<h2>friendly packages</h2>
+				<h2>Flat packages are friendly packages</h2>
 
 				<img className='stretch' src='assets/normal-distribution.jpg' />
 
@@ -447,7 +446,8 @@ import (
     "booking/model"
     "user/model"
 )
-
+						`}</code></pre>
+						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
 // booking/handler.go
 import (
     "user/repository"
@@ -463,15 +463,13 @@ import (
 						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
 // user/user.go
 import "booking"
-
+						`}</code></pre>
+						<pre><code data-trim data-noescape className='language-golang' style={{ fontSize: '0.8em' }}>{`
 // booking/booking.go
 import "user"
 
 // Compiler error! 💥
 // Forces design fix early
-
-user.Account{}
-booking.Reservation{}
 						`}</code></pre>
 					</div>
 				</div>
@@ -515,7 +513,7 @@ booking.Reservation{}
 			</section>
 
 			<section>
-				<h2>Copying from people who thought about this more</h2>
+				<h2>What are the simple basics of packaging?</h2>
 				<img
 					src='assets/deeper.jpg'
 					alt='Inception - We need to go deeper'
