@@ -175,10 +175,6 @@ export const Talk = () => {
 				<aside className='notes'>
 					<p>So why am I telling you this?</p>
 					<div>
-						Apparently it's because off the field I play just same
-						at the keyboard.
-					</div>
-					<div>
 						Read the slides...
 					</div>
 				</aside>
@@ -200,9 +196,15 @@ import (
 				`}</code></pre>
 				<aside className='notes'>
 					<div>
-						It's organised by technical layers (models, handlers,
-						services) but that doesn't help someone understand what
-						the app is for.
+						1. we started adding in some code by technical layers
+						and it looked okay at first
+					</div>
+					<div>
+						2. you've got your model here, view there..
+					</div>
+					<div>
+						3. but the packages started to grow larger and so we
+						split again
 					</div>
 				</aside>
 			</section>
@@ -299,13 +301,7 @@ func SetupRoutes() {
 
 				<aside className='notes'>
 					<div>
-						Just like Go interfaces should be defined by the
-						consumer, not the provider, packages should be
-						structured for consumption.
-					</div>
-					<div>
-						The people importing your packages shouldn't have to
-						understand your internal organisation choices.
+						So I had on how we could change things
 					</div>
 				</aside>
 			</section>
@@ -748,7 +744,9 @@ import "user"
 
 				<ul>
 					<li>Flat packages == friendly packages</li>
-					<li>Force use of the public interface with _test</li>
+					<li>
+						Force use of the public interface with _test packages
+					</li>
 					<li>Think about the developer who will use your package</li>
 				</ul>
 
